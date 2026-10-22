@@ -1,0 +1,25 @@
+# Контекст сборки — корень репозитория; в образ попадают только back/, front/ и deploy/platform/
+.git
+.claude
+design
+docs
+backups
+*.md
+!front/README.md
+.env
+.env.*
+**/__pycache__
+**/*.pyc
+
+back/.venv
+back/.env
+back/storage
+back/.pytest_cache
+back/.ruff_cache
+back/tests
+
+front/node_modules
+front/.next
+front/.env
+front/.env.*
+front/*.tsbuildinfo

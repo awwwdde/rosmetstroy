@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+/* Визуальная система из утверждённого дизайна */
+@theme {
+  --font-sans: var(--font-onest), "Onest", system-ui, sans-serif;
+
+  --color-navy-950: #071d36;
+  --color-navy-900: #0a2747;
+  --color-navy-800: #103d70;
+  --color-accent: #087cff;
+  --color-accent-dark: #326fa7;
+  --color-sky: #a9d4ff;
+  --color-paper: #f5f8fb;
+  --color-mist: #e6ecf2;
+  --color-ink: #202b36;
+  --color-muted: #4a5866;
+  --color-line: #cbd6e2;
+  --color-line-strong: #b9c7d6;
+  --color-placeholder: #8a97a5;
+  --color-danger: #b42318;
+  --color-danger-bg: #fff1f1;
+  --color-danger-line: #f2b8b8;
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --radius-card: 6px;
+  --radius-control: 4px;
+}
+
+@utility container-site {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 48px);
+}
+
+@utility section-y {
+  padding-block: clamp(80px, 10vw, 140px);
+}
+
+@utility section-y-sm {
+  padding-block: clamp(72px, 9vw, 130px);
+}
+
+@utility display-1 {
+  /* Длинные русские слова («Металлоконструкции») переносятся на узких экранах */
+  hyphens: auto;
+  overflow-wrap: break-word;
+  /* min(…, 8.6vw): на узких телефонах длинное слово помещается целиком */
+  font-size: clamp(min(42px, 8.6vw), 6.2vw, 90px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+@utility display-page {
+  /* Длинные русские слова («Металлоконструкции») переносятся на узких экранах */
+  hyphens: auto;
+  overflow-wrap: break-word;
+  font-size: clamp(min(44px, 8.6vw), 6.4vw, 96px);
+  line-height: 0.96;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+@utility heading-2 {
+  /* Длинные русские слова («Металлоконструкции») переносятся на узких экранах */
+  hyphens: auto;
+  overflow-wrap: break-word;
+  font-size: clamp(36px, 4.4vw, 64px);
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+@utility heading-2-sm {
+  /* Длинные русские слова («Металлоконструкции») переносятся на узких экранах */
+  hyphens: auto;
+  overflow-wrap: break-word;
+  font-size: clamp(32px, 3.8vw, 56px);
+  line-height: 1.04;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+@utility lead-text {
+  font-size: 17px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    background: var(--color-paper);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+
+  a:hover {
+    color: var(--color-accent-dark);
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-placeholder);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Появление раздела админки */
+@keyframes admin-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Знак на экране входа собирается из трёх элементов */
+@keyframes brand-bar {
+  from {
+    opacity: 0;
+    transform: translate(-18px, 18px);
+  }
+}
+
+/* Скелетоны админки */
+@keyframes admin-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Индикатор отправки формы */
+@keyframes rms-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+/* Типографика статей и текстовых страниц */
+.prose-rms {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.prose-rms > * + * {
+  margin-top: 1.1em;
+}
+
+.prose-rms h2 {
+  margin-top: 1.8em;
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-navy-950);
+}
+
+.prose-rms h3 {
+  margin-top: 1.6em;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-navy-950);
+}
+
+.prose-rms ul,
+.prose-rms ol {
+  padding-left: 1.3em;
+}
+
+.prose-rms ul {
+  list-style: square;
+}
+
+.prose-rms ol {
+  list-style: decimal;
+}
+
+.prose-rms li + li {
+  margin-top: 0.4em;
+}
+
+.prose-rms li::marker {
+  color: var(--color-accent);
+}
+
+.prose-rms a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-rms strong {
+  color: var(--color-navy-950);
+  font-weight: 600;
+}
+
+.prose-rms blockquote {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 20px;
+  color: var(--color-navy-950);
+  font-size: 19px;
+}
+
+.prose-rms img {
+  border-radius: var(--radius-card);
+  max-width: 100%;
+  height: auto;
+}
+
+.prose-rms table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose-rms th,
+.prose-rms td {
+  border-top: 1px solid var(--color-line);
+  padding: 12px 12px 12px 0;
+  text-align: left;
+}

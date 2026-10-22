@@ -1,0 +1,47 @@
+# Внутренний прокси единого образа. TLS снимает Caddy платформы — здесь только HTTP
+# и никаких редиректов на https.
+{
+	admin off
+	auto_https off
+	servers {
+		# X-Forwarded-For от прокси платформы (частная сеть docker) считается достоверным:
+		# по нему backend ограничивает частоту запросов для каждого посетителя
+		trusted_proxies static private_ranges
+		client_ip_headers X-Forwarded-For
+	}
+}
+
+:8080 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; frame-src https://yandex.ru https://*.yandex.ru https://www.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
+		-Server
+	}
+
+	# Хук инвалидации кэша вызывается backend-ом напрямую на 127.0.0.1:3000, снаружи закрыт
+	handle /api/revalidate {
+		respond 404
+	}
+
+	# REST API; крупные тела запросов — для вложений заявок
+	handle /api/v1/* {
+		request_body {
+			max_size 260MB
+		}
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# Медиафайлы из PostgreSQL отдаёт FastAPI
+	handle /media/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}

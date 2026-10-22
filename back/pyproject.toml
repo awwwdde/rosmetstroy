@@ -1,0 +1,29 @@
+[project]
+name = "rosmetstroy-backend"
+version = "1.0.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "RUF", "SIM", "C4", "PT"]
+ignore = [
+    "B008",    # FastAPI Depends/Query в аргументах по умолчанию
+    "RUF001",  # кириллица в строках
+    "RUF002",
+    "RUF003",
+    "S101",    # assert в тестах
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+"app/seed_data.py" = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]

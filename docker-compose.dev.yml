@@ -1,0 +1,22 @@
+name: rosmetstroy-dev
+# Только PostgreSQL для локальной разработки (backend и frontend запускаются на хосте).
+# docker compose -f docker-compose.dev.yml up -d
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: rosmetstroy
+      POSTGRES_USER: rosmetstroy
+      POSTGRES_PASSWORD: rosmetstroy
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rosmetstroy -d rosmetstroy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata_dev:

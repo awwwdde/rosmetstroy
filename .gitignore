@@ -1,0 +1,64 @@
+# ---- Секреты и локальные настройки ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Служебные папки AI-ассистентов и редакторов ----
+.claude/
+.cursor/
+.windsurf/
+.aider*
+.codex/
+.gemini/
+.continue/
+.copilot/
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.vscode/
+.idea/
+*.code-workspace
+
+# ---- Макеты, материалы и рабочие заметки (не часть сайта) ----
+design/
+docs/content-review.md
+
+# ---- Данные и резервные копии ----
+backups/
+back/storage/
+*.sql
+*.dump
+
+# ---- Python ----
+back/.venv/
+.venv/
+**/__pycache__/
+*.py[cod]
+back/.pytest_cache/
+back/.ruff_cache/
+back/.mypy_cache/
+.coverage
+htmlcov/
+
+# ---- Node / Next.js ----
+node_modules/
+front/.next/
+front/out/
+front/build/
+front/coverage/
+*.tsbuildinfo
+front/next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.vercel
+
+# ---- Системные ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
