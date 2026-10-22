@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="12" viewBox="0 0 1280 12" role="presentation">
+  <style>
+    .run { animation: run 5s ease-in-out infinite alternate; }
+    @keyframes run { from { transform: translateX(0) } to { transform: translateX(1100px) } }
+    @media (prefers-reduced-motion: reduce) { .run { animation: none } }
+  </style>
+  <rect x="0" y="5.5" width="1280" height="1" fill="#CBD6E2"/>
+  <rect class="run" x="0" y="4" width="180" height="4" rx="2" fill="#087CFF"/>
+</svg>

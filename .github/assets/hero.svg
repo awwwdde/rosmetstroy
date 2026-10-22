@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" role="img" aria-label="Росметстрой — металлоконструкции, отделка и логистика инженерного оборудования">
+  <defs>
+    <radialGradient id="glow" cx="78%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#087CFF" stop-opacity=".28"/>
+      <stop offset=".55" stop-color="#087CFF" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#087CFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" x2="1">
+      <stop offset="0" stop-color="#087CFF"/>
+      <stop offset="1" stop-color="#A9D4FF"/>
+    </linearGradient>
+    <clipPath id="frame"><rect width="1280" height="440" rx="18"/></clipPath>
+  </defs>
+  <style>
+    .t { font-family: Onest, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+    .up { opacity: 0; animation: up .9s cubic-bezier(.2,.7,.2,1) forwards; }
+    .m1 { animation-delay: .05s } .m2 { animation-delay: .17s } .m3 { animation-delay: .29s }
+    .a1 { animation-delay: .35s } .a2 { animation-delay: .5s } .a3 { animation-delay: .65s } .a4 { animation-delay: .8s }
+    @keyframes up { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+    .grow { transform-box: fill-box; transform-origin: left; transform: scaleX(0); animation: grow 1.1s .7s cubic-bezier(.2,.7,.2,1) forwards; }
+    @keyframes grow { to { transform: scaleX(1) } }
+    .draw { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.4s cubic-bezier(.45,.05,.25,1) forwards; }
+    .d0 { animation-delay: .4s } .d1 { animation-delay: .8s } .d2 { animation-delay: 1.2s } .d3 { animation-delay: 1.6s } .d4 { animation-delay: 2s }
+    @keyframes draw { to { stroke-dashoffset: 0 } }
+    .node { opacity: 0; transform-box: fill-box; transform-origin: center; animation: pop .5s 2.6s cubic-bezier(.2,.7,.2,1.4) forwards; }
+    @keyframes pop { from { opacity: 0; transform: scale(.2) } to { opacity: 1; transform: none } }
+    .pulse { transform-box: fill-box; transform-origin: center; opacity: 0; animation: pulse 2.4s 3.2s ease-out infinite; }
+    @keyframes pulse { 0% { opacity: .7; transform: scale(1) } 100% { opacity: 0; transform: scale(4.5) } }
+    .scan { animation: scan 6s 3s linear infinite; opacity: 0; }
+    @keyframes scan { 0% { opacity: 0; transform: translateX(0) } 8% { opacity: 1 } 92% { opacity: 1 } 100% { opacity: 0; transform: translateX(440px) } }
+    @media (prefers-reduced-motion: reduce) {
+      .up, .node { opacity: 1; animation: none } .grow { transform: none; animation: none }
+      .draw { stroke-dashoffset: 0; animation: none } .pulse, .scan { animation: none; opacity: 0 }
+    }
+  </style>
+
+  <g clip-path="url(#frame)">
+    <rect width="1280" height="440" fill="#071D36"/>
+    <rect width="1280" height="440" fill="url(#glow)"/>
+
+    <!-- знак -->
+    <g transform="translate(84 74) scale(.42)">
+      <polygon class="up m1" points="12,112 12,76 86,2 86,38" fill="#FFFFFF"/>
+      <polygon class="up m2" points="78,112 78,82 145,15 145,45" fill="#087CFF"/>
+      <polygon class="up m3" points="140,112 140,88 194,34 194,58" fill="#A9D4FF"/>
+    </g>
+
+    <text class="t up a1" x="84" y="150" fill="#7F9BBD" font-size="14" font-weight="500" letter-spacing="3.2">КОРПОРАТИВНЫЙ САЙТ · CMS · API</text>
+    <text class="t up a2" x="80" y="236" fill="#FFFFFF" font-size="86" font-weight="600" letter-spacing="-3">Росметстрой</text>
+    <rect class="grow" x="84" y="262" width="168" height="4" rx="2" fill="url(#bar)"/>
+    <text class="t up a3" x="84" y="316" fill="#A9D4FF" font-size="23" font-weight="400">Металлоконструкции, внутренняя отделка</text>
+    <text class="t up a3" x="84" y="346" fill="#A9D4FF" font-size="23" font-weight="400">и логистика инженерного оборудования</text>
+    <text class="t up a4" x="84" y="392" fill="#5F7A9C" font-size="15" font-weight="400">Next.js · FastAPI · PostgreSQL · Docker</text>
+
+    <!-- каркас здания: колонны, ферма, антресоль -->
+    <g transform="translate(-20 0)">
+      <path class="draw d0" pathLength="1" d="M760 360 H1210" stroke="#2C4A6E" stroke-width="2"/>
+      <path class="draw d0" pathLength="1" d="M800 360 V230 M1160 360 V230" stroke="#FFFFFF" stroke-width="5"/>
+      <path class="draw d1" pathLength="1" d="M800 230 L980 150 L1160 230" stroke="#FFFFFF" stroke-width="5"/>
+      <path class="draw d1" pathLength="1" d="M800 230 H1160" stroke="#A9D4FF" stroke-width="3"/>
+      <path class="draw d2" pathLength="1" d="M860 230 V203.3 M920 230 V176.7 M980 230 V150 M1040 230 V176.7 M1100 230 V203.3" stroke="#A9D4FF" stroke-width="2"/>
+      <path class="draw d2" pathLength="1" d="M800 230 L860 203.3 M860 230 L920 176.7 M920 230 L980 150 M1040 176.7 L1100 230 M980 150 L1040 230 M1100 203.3 L1160 230" stroke="#087CFF" stroke-width="2.5"/>
+      <path class="draw d3" pathLength="1" d="M800 296 H960 M960 296 V360 M880 296 V360" stroke="#087CFF" stroke-width="4"/>
+      <path class="draw d4" pathLength="1" d="M800 296 L880 360 M880 296 L960 360" stroke="#3B6A9E" stroke-width="2"/>
+
+      <g fill="#087CFF">
+        <circle class="node" cx="800" cy="230" r="5"/><circle class="node" cx="1160" cy="230" r="5"/>
+        <circle class="node" cx="980" cy="150" r="6"/><circle class="node" cx="800" cy="296" r="4"/>
+        <circle class="node" cx="960" cy="296" r="4"/><circle class="node" cx="880" cy="296" r="4"/>
+      </g>
+      <circle class="pulse" cx="980" cy="150" r="6" fill="none" stroke="#A9D4FF" stroke-width="2"/>
+      <rect class="scan" x="760" y="358" width="70" height="4" rx="2" fill="url(#bar)"/>
+    </g>
+  </g>
+</svg>

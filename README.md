@@ -1,111 +1,77 @@
-# Росметстрой — корпоративный сайт и CMS
+<p align="center">
+  <img src=".github/assets/hero.svg" alt="Росметстрой — металлоконструкции, внутренняя отделка и логистика инженерного оборудования" width="100%">
+</p>
 
-Многостраничный корпоративный сайт «Росметстрой», собственная административная панель и REST API.
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-071D36?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React-19-071D36?style=flat-square&logo=react&logoColor=A9D4FF" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-strict-087CFF?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript strict">
+  <img src="https://img.shields.io/badge/FastAPI-Python_3.13-087CFF?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/PostgreSQL-17-326FA7?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 17">
+  <img src="https://img.shields.io/badge/Docker-ready-326FA7?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+</p>
+
+<p align="center">
+  <b>Корпоративный сайт производственно-строительной компании</b><br>
+  с собственной CMS, заявками на расчёт и SEO, рассчитанным на поисковики и нейросети.
+</p>
+
+<p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
+
+## О проекте
+
+«Росметстрой» проектирует, организует изготовление по чертежам и монтирует металлоконструкции, выполняет внутреннюю
+отделку помещений и организует доставку инженерного оборудования. IT-решения — через партнёрскую студию.
+
+<p align="center">
+  <img src=".github/assets/directions.svg" alt="Направления: металлоконструкции, отделка, логистика, IT-решения через партнёра" width="100%">
+</p>
+
+| | Сайт | Админ-панель `/admin` |
+|---|---|---|
+| **Контент** | Услуги, проекты с галереями, блог, FAQ, «Работа с металлом», свои страницы | Редактор блоков страниц, скрытие блоков, медиатека, визуальный редактор статей |
+| **Заявки** | Форма расчёта с чертежами (PDF, DWG, DXF, ZIP), защита от спама | Статусы, комментарии, вложения, уведомления на e-mail и в Telegram |
+| **Опыт** | Плавная прокрутка, анимации GSAP и Motion, адаптив, `prefers-reduced-motion` | Командная палитра <kbd>Ctrl</kbd>+<kbd>K</kbd>, роли admin / editor, журнал действий |
+| **Видимость** | schema.org, `sitemap.xml`, `llms.txt` для нейросетей, IndexNow | Коды Яндекс Вебмастера, Google и Bing, SEO-поля у каждой страницы |
+
+Изменения в CMS появляются на сайте сразу: после сохранения backend сбрасывает кэш Next.js по тегам
+и уведомляет Яндекс и Bing через IndexNow.
+
+<p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
+
+## Стек
 
 | Слой | Технологии |
 |---|---|
-| Frontend | Next.js 16 (App Router, Cache Components), React 19, TypeScript strict, Tailwind CSS 4, GSAP + ScrollTrigger, Motion, Lenis, Zustand, React Hook Form + Zod, TipTap |
-| Backend | Python 3.13, FastAPI, Pydantic v2, SQLAlchemy 2 (async), Alembic, PostgreSQL 17, Argon2id |
-| Инфраструктура | Docker Compose, Caddy 2 (HTTPS, reverse proxy, раздача медиа) |
+| **Frontend** | Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS 4 · GSAP · Motion · Lenis · Zustand · React Hook Form + Zod · TipTap |
+| **Backend** | FastAPI · Pydantic v2 · SQLAlchemy 2 (async) · Alembic · PostgreSQL · Argon2id |
+| **Инфраструктура** | Docker · Caddy 2 (HTTPS, reverse proxy) |
 
 ```text
-rosmetstroy/
-├── front/              Next.js: публичный сайт (src/app/(site)) и админка (src/app/admin)
-├── back/               FastAPI: app/api/v1, models, schemas, repositories, services; alembic; tests
-├── deploy/platform/    Caddy и скрипт запуска единого образа (корневой Dockerfile)
-├── Dockerfile          Единый образ для платформы деплоя
-├── docker-compose.yml  Production: postgres, backend, frontend, caddy
-├── docker-compose.dev.yml  Только PostgreSQL для локальной разработки
-├── Caddyfile
-└── .env.example
+├── front/             Next.js: публичный сайт  src/app/(site)  и админка  src/app/admin
+├── back/              FastAPI: app/api/v1 · models · schemas · services · alembic · tests
+├── deploy/platform/   Caddy и скрипт запуска единого образа
+├── Dockerfile         Единый образ: сайт + API на порту 8080
+└── docker-compose.yml Отдельные сервисы для своего сервера
 ```
 
-## Архитектура
+<p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
 
-- **Данные** — только в PostgreSQL. Тексты страниц хранятся как JSON-секции в рамках шаблонов
-  (`front/src/features/admin/page-templates.ts` ↔ `front/src/types/content.ts`), услуги, проекты,
-  статьи, FAQ, категории, медиа, заявки и настройки сайта — в отдельных таблицах. Стартовый контент
-  из макетов загружается командой `seed`.
-- **Рендеринг** — Server Components, данные загружаются функциями с `'use cache'` + `cacheTag`
-  (`front/src/services/content.ts`): страницы пререндерятся статически, а после сохранения в CMS
-  backend вызывает внутренний хук `/api/revalidate`, и Next.js обновляет кэш по тегам (ISR).
-  Если API недоступен во время сборки (`docker build`), страницы собираются как Partial Prerender
-  и получают данные при первом запросе.
-- **Маршрутизация в production** — Caddy: `/api/v1/*` → FastAPI, `/media/*` → файлы из volume,
-  остальное → Next.js. `/api/revalidate` снаружи закрыт, PostgreSQL не публикуется.
-- **Локализация** — у контентных таблиц есть поле `locale` (сейчас `ru`), API принимает `?locale=`.
-  Для английской версии достаточно добавить записи с `locale=en` и сегмент `[locale]` во фронтенде.
-- **Анимации** — GSAP: появление блоков (`Reveal`), параллакс первого экрана (`Parallax`), плавная
-  прокрутка Lenis синхронизирована с ScrollTrigger. Motion: меню, аккордеоны, вкладки производства,
-  фильтр проектов, состояния форм, модальные окна. Одно свойство одним инструментом не анимируется,
-  контексты GSAP очищаются (`useGSAP`), всё отключается при `prefers-reduced-motion`; Lenis и параллакс
-  работают только на desktop.
+## Быстрый старт
 
-### Страницы
+Нужны **Node.js 22**, **Python 3.12+** и **Docker**.
 
-`/` · `/about` · `/services` · `/services/[slug]` · `/metalwork` (бывший `/production`, 308-редирект) · `/projects` · `/projects/[slug]` ·
-`/blog` · `/blog/[slug]` · `/faq` · `/contacts` · `/request` · `/privacy` · 404 · `/sitemap.xml` · `/robots.txt`
-
-Админка: `/admin` — обзор, заявки, страницы, услуги, проекты, категории, блог, FAQ, медиатека,
-настройки сайта, пользователи, журнал действий, смена пароля.
-
-### API (`/api/v1`, OpenAPI — `/api/v1/openapi.json`, Swagger в dev — `/api/docs`)
-
-| Группа | Публично | Администрирование (`/api/v1/admin/...`) |
-|---|---|---|
-| `auth` | `login`, `logout`, `me`, `password` | — |
-| `pages` | `GET /pages/{slug}` | список, чтение, изменение |
-| `services`, `projects`, `articles` | списки и карточки (только опубликованные) | CRUD, пагинация, поиск, сортировка `?sort=-field` |
-| `categories`, `faq` | списки | CRUD |
-| `media` | файлы по `/media/...` | загрузка, alt, удаление |
-| `leads` | `GET /leads/token`, `POST /leads` | список с фильтрами, статус, комментарии, скачивание файлов, удаление |
-| `settings` | `GET /settings/site` | изменение (только admin) |
-| `admin` | — | `dashboard`, `users`, `audit` |
-| `health` | `GET /health` | — |
-
-### Безопасность
-
-- Сессии в БД, httpOnly + SameSite=Lax cookie (`Secure` в production), токены не хранятся в localStorage.
-- CSRF: double-submit cookie `rms_csrf` + заголовок `X-CSRF-Token` для всех изменяющих запросов.
-- Роли: `admin` (всё) и `editor` (контент и заявки). Пароли — Argon2id, сброс всех сессий при смене пароля.
-- Rate limiting: вход — 10 попыток / 15 мин на IP и на e-mail, заявки — 5 / 10 мин на IP.
-- Антиспам заявок: подписанный HMAC токен формы (минимальное время заполнения), поле-ловушка.
-- Загрузки: проверка сигнатуры содержимого (PDF, DWG, DXF, JPG, PNG, ZIP; изображения — через Pillow),
-  лимиты размера и количества, вложения заявок хранятся вне публичной директории и отдаются только админке.
-- HTML статей очищается на сервере (nh3). Журнал критических действий (входы, изменения, скачивания).
-- Заголовки безопасности и CSP — в Caddy; CORS ограничен доменом сайта; секреты только на сервере.
-
-## SEO и видимость в нейросетях (GEO)
-
-- **Метаданные** каждой страницы: title, description, canonical, Open Graph и Twitter-карточки,
-  `max-snippet:-1` и `max-image-preview:large` — поисковики и AI-ответы могут цитировать текст и показывать крупные превью.
-- **Структурированные данные schema.org** единым графом: организация (`GeneralContractor`) и сайт на всех страницах;
-  `Service` + `FAQPage` у услуг, `CreativeWork` у проектов, `BlogPosting` у статей, `CollectionPage`/`ItemList`
-  у каталогов, `AboutPage`, `ContactPage`, хлебные крошки. ИНН, ОГРН и география работ попадают в разметку,
-  когда заполнены в «Настройки сайта».
-- **`/llms.txt` и `/llms-full.txt`** ([llmstxt.org](https://llmstxt.org)) — описание компании, услуг, проектов,
-  вопросов и статей для ChatGPT, Claude, Perplexity, Gemini, Алисы. Собираются из CMS автоматически.
-- **`robots.txt`** явно открывает сайт поисковым и AI-краулерам (YandexBot, YandexAdditional, Googlebot,
-  Google-Extended, Bingbot, OAI-SearchBot, GPTBot, ClaudeBot, PerplexityBot и др.); закрыты только `/admin` и `/api/`.
-- **`sitemap.xml`** с датами изменения и изображениями.
-- **IndexNow**: после каждого сохранения в CMS Яндекс и Bing получают список изменённых страниц
-  (только в production с https-адресом; ключ — `/indexnow-key.txt`).
-- **Подтверждение прав** в Яндекс Вебмастере, Google Search Console и Bing Webmaster — коды вводятся
-  в «Настройки сайта → Поисковые системы».
-
-После запуска на боевом домене: подтвердите сайт в Яндекс Вебмастере и Google Search Console, отправьте
-`sitemap.xml`, укажите регион в Вебмастере и заполните в CMS реквизиты и географию работ.
-
-## Локальная разработка
-
-Требования: Node.js 22, Python 3.12+, Docker.
+**1. База данных**
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
+**2. Backend** — http://localhost:8000
+
 ```bash
-cd back && python -m venv .venv && .venv/Scripts/pip install -r requirements-dev.txt   # Linux/macOS: .venv/bin/pip
+cd back
+python -m venv .venv && .venv/Scripts/pip install -r requirements-dev.txt   # Linux/macOS: .venv/bin/...
 cp .env.example .env
 .venv/Scripts/alembic upgrade head
 .venv/Scripts/python -m app.cli seed
@@ -113,38 +79,49 @@ cp .env.example .env
 .venv/Scripts/uvicorn app.main:app --reload --port 8000
 ```
 
+**3. Frontend** — http://localhost:3001, админка — http://localhost:3001/admin
+
 ```bash
 cd front && npm ci && cp .env.example .env.local && npm run dev
 ```
 
-Сайт — http://localhost:3001, админка — http://localhost:3001/admin (порт 3001 закреплён в `npm run dev`). Запросы `/api/v1` и `/media`
-dev-сервер Next.js проксирует на `localhost:8000`. Если запускаете Next.js на другом порту,
-укажите его в `FRONTEND_INTERNAL_URL` в `back/.env` — иначе изменения из CMS появятся на сайте
-только после истечения кэша.
-
-Проверки качества:
+<details>
+<summary><b>Проверки качества</b></summary>
 
 ```bash
-cd back && .venv/Scripts/ruff check app tests && .venv/Scripts/ruff format --check app tests && .venv/Scripts/pytest
+cd back && .venv/Scripts/ruff check app tests && .venv/Scripts/pytest
 ```
 
 ```bash
-cd front && npm run typecheck && npm run lint && npm run format:check && npm run build
+cd front && npm run typecheck && npm run lint && npm run build
 ```
 
-Тесты backend используют отдельную БД `rosmetstroy_test` (создать один раз:
-`docker compose -f docker-compose.dev.yml exec postgres createdb -U rosmetstroy rosmetstroy_test`).
-TypeScript-типы API генерируются из OpenAPI: `npm run api:types` (backend должен быть запущен).
+Тесты используют базу `rosmetstroy_test`:
+`docker compose -f docker-compose.dev.yml exec postgres createdb -U rosmetstroy rosmetstroy_test`.
+Типы API для фронтенда генерируются из OpenAPI: `npm run api:types` (backend должен быть запущен).
 
-## Деплой на платформу `*.awwwdde.art`
+</details>
 
-Один образ из корневого `Dockerfile` (порт 8080, `/healthz`, файлы в PostgreSQL). Перед первым деплоем задайте в панели `ADMIN_EMAIL` и `ADMIN_PASSWORD` — подробности в [docs/deploy-platform.md](docs/deploy-platform.md).
+<p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
 
-## Развёртывание на VPS
+## Деплой
 
-1. Установите Docker, направьте DNS домена на сервер, откройте порты 80 и 443.
-2. Скопируйте проект и создайте `.env` по шаблону `.env.example` (секреты — `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
-3. Первый запуск (миграции применяются автоматически при старте backend):
+### Один контейнер
+
+Корневой `Dockerfile` собирает сайт, API и прокси в один образ: порт `8080`, проверка `/healthz`,
+файлы хранятся в PostgreSQL. Нужны переменные `DATABASE_URL`, `SECRET_KEY`, `PUBLIC_SITE_URL`, а для первого
+запуска ещё `ADMIN_EMAIL` и `ADMIN_PASSWORD`. Миграции, стартовый контент и первый администратор
+создаются при старте автоматически.
+
+```bash
+docker build -t rosmetstroy . && docker run -p 8080:8080 --env-file .env rosmetstroy
+```
+
+Подробно — в [docs/deploy-platform.md](docs/deploy-platform.md).
+
+### Свой сервер (VPS)
+
+Скопируйте `.env.example` в `.env`, задайте домен и секреты, затем:
 
 ```bash
 docker compose up -d --build
@@ -160,48 +137,48 @@ docker compose exec backend python -m app.cli create-admin --email admin@rosmets
 
 Caddy сам выпустит сертификат Let's Encrypt для `SITE_DOMAIN`.
 
-### Эксплуатация
+<details>
+<summary><b>Эксплуатация</b></summary>
 
 | Задача | Команда |
 |---|---|
-| Применить миграции вручную | `docker compose exec backend alembic upgrade head` |
-| Создать / сбросить пароль администратора | `docker compose exec backend python -m app.cli create-admin --email ...` |
-| Обновить после изменений кода | `git pull && docker compose up -d --build` |
+| Обновить после изменений | `git pull && docker compose up -d --build` |
 | Логи | `docker compose logs -f backend frontend caddy` |
-| Резервная копия БД | `docker compose exec postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /backups/db-$(date +%F).dump'` (файл появится в `./backups`) |
-| Резервная копия медиа | `docker run --rm -v rosmetstroy_media:/data:ro -v "$PWD/backups":/backup alpine tar czf /backup/media-$(date +%F).tgz -C /data .` |
-| Резервная копия вложений заявок | то же для тома `rosmetstroy_private_files` |
+| Сбросить пароль администратора | `docker compose exec backend python -m app.cli create-admin --email ...` |
+| Резервная копия БД | `docker compose exec postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /backups/db-$(date +%F).dump'` |
 | Восстановить БД | `docker compose exec postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists /backups/db-ГГГГ-ММ-ДД.dump'` |
-| Восстановить медиа | `docker run --rm -v rosmetstroy_media:/data -v "$PWD/backups":/backup alpine tar xzf /backup/media-ГГГГ-ММ-ДД.tgz -C /data` |
 
-Резервное копирование удобно запускать по cron. Вместо локального тома медиа можно использовать
-S3-совместимое хранилище: `STORAGE_BACKEND=s3` и переменные `S3_*` в `.env`.
+Медиа можно хранить в S3-совместимом хранилище: `STORAGE_BACKEND=s3` и переменные `S3_*`.
+Уведомления о заявках: `SMTP_*` + `NOTIFY_EMAILS` и/или `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`.
 
-Уведомления о заявках включаются заполнением `SMTP_*`/`NOTIFY_EMAILS` и/или `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`.
+</details>
 
-## Позиционирование и достоверность контента
+<details>
+<summary><b>Безопасность</b></summary>
 
-Компания представлена как исполнитель и организатор работ: работы выполняют собственные специалисты
-и профильные подрядчики, IT-услуги — партнёрская студия. Сведения о собственном заводе, оборудовании,
-автопарке, а также рекламные цифры и гарантии на сайте не используются.
+- Сессии в базе, cookie `httpOnly` + `SameSite=Lax` (`Secure` в production), CSRF по схеме double-submit.
+- Пароли — Argon2id; ограничение попыток входа и отправки заявок.
+- Заявки: подписанный токен формы и поле-ловушка; загрузки проверяются по содержимому, вложения доступны только в админке.
+- HTML статей очищается на сервере; CSP и заголовки безопасности — в Caddy.
 
-- Подтверждённые показатели и реквизиты заполняются в «Настройки сайта»; пока они пусты, блоки скрыты.
-- В базе нет опубликованных проектов — только неопубликованный «Шаблон кейса» в CMS. У проекта есть поля
-  «Местоположение», «Роль „Росметстрой“», задача, выполненные работы, фотогалерея, подтверждённые характеристики, результат.
-- Тест `test_seed_has_no_unconfirmed_claims` проверяет, что стартовый контент не содержит запрещённых формулировок.
+</details>
 
-## Отличия от макетов и что требует внимания
+<details>
+<summary><b>SEO и нейросети</b></summary>
 
-- В макетах нарисованы Главная, Услуга, Проекты, Проект, Заявка (с состояниями) и 404. Страницы
-  «О компании», «Работа с металлом», «Услуги», «Блог», «Статья», «FAQ», «Контакты», «Политика» собраны
-  из тех же компонентов и визуальной системы.
-- Главная перестроена по брифу позиционирования: «О компании», направления (металлоконструкции — крупная
-  карточка), «Какие задачи решаем», проекты, «Как мы работаем», «Почему с нами сотрудничают», IT-партнёр,
-  FAQ, заявка. Блок «Технологический маршрут» с главной убран.
-- Из фотографий в макетах есть только `hero-frame.png`; остальные места помечены как image-slot.
-  До загрузки фото в CMS на их месте показывается фирменная заглушка с описанием кадра.
-- Тексты услуг, две статьи блога и политика конфиденциальности — стартовые формулировки без
-  неподтверждённых фактов; их нужно проверить в CMS (политику — согласовать с юристом).
-- На экранах уже 480px заголовки первого экрана слегка уменьшаются, чтобы слово
-  «Металлоконструкции» помещалось без разрыва.
-- Rate limiter хранит счётчики в памяти, поэтому backend запускается одним процессом (достаточно для одного VPS).
+- Метаданные, canonical и Open Graph у каждой страницы, разметка schema.org одним графом: организация,
+  услуги с FAQ, проекты, статьи, каталоги, хлебные крошки.
+- `/llms.txt` и `/llms-full.txt` — описание компании для ChatGPT, Claude, Perplexity, Gemini и Алисы, собирается из CMS.
+- `robots.txt` открыт для поисковых и AI-краулеров; закрыты только `/admin` и `/api/`.
+- IndexNow отправляет Яндексу и Bing изменённые страницы после каждого сохранения в CMS.
+
+После запуска подтвердите сайт в Яндекс Вебмастере и Google Search Console (коды вводятся в
+«Настройки сайта → Поисковые системы») и отправьте `sitemap.xml`.
+
+</details>
+
+<p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
+
+<p align="center">
+  <sub>© ООО «Росметстрой» · Москва, ул. Верхние Поля, д. 46, стр. 9 · <a href="mailto:info@rosmetstroy.ru">info@rosmetstroy.ru</a></sub>
+</p>
