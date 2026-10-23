@@ -7,6 +7,7 @@ import { PageFallback } from "@/components/layout/PageFallback";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { LightHero } from "@/components/sections/PageHero";
 import { JsonLd } from "@/components/ui/JsonLd";
+import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { shown } from "@/lib/utils";
 import { getPage, getSiteSettings } from "@/services/content";
@@ -62,22 +63,21 @@ async function ContactsContent() {
       <section className="bg-paper pt-16 pb-[clamp(72px,9vw,130px)]">
         <div className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-x-20 gap-y-12">
           <Reveal>
-            <dl className="m-0 flex flex-col border-b border-line">
-              {rows.map((row) => (
-                <div key={row.k} className="grid grid-cols-[minmax(140px,1fr)_2fr] gap-6 border-t border-line py-6">
-                  <dt className="pt-1 text-[13px] text-accent-dark">{row.k}</dt>
-                  <dd className="m-0 text-[clamp(18px,1.6vw,22px)] font-medium text-navy-950">
-                    {row.href ? (
-                      <a href={row.href} className="text-navy-950 no-underline hover:text-accent">
-                        {row.v}
-                      </a>
-                    ) : (
-                      row.v
-                    )}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <InfoBlocks
+              size="lg"
+              minWidth={260}
+              items={rows.map((row) => ({
+                key: row.k,
+                label: row.k,
+                value: row.href ? (
+                  <a href={row.href} className="text-navy-950 no-underline hover:text-accent">
+                    {row.v}
+                  </a>
+                ) : (
+                  row.v
+                ),
+              }))}
+            />
           </Reveal>
           <Reveal className="relative min-h-[420px] overflow-hidden rounded-[6px] bg-navy-800">
             {mapUrl ? (

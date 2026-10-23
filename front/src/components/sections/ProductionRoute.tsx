@@ -6,6 +6,7 @@ import { useId, useState } from "react";
 import { Reveal } from "@/components/animations/Reveal";
 import { MediaImage } from "@/components/ui/MediaImage";
 import { SmartLink } from "@/components/ui/SmartLink";
+import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { cn } from "@/lib/utils";
 import type { ProcessStep } from "@/types/content";
 
@@ -47,12 +48,14 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
         <div
           role="tablist"
           aria-label="Этапы"
-          className="relative grid border-t border-sky/20"
-          style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}
+          // Телефон — сетка карточек по два в ряд (в одну строку названия этапов не помещаются),
+          // с 768px — одна строка с полосой прогресса
+          className="relative grid grid-cols-2 gap-2 md:grid-cols-[repeat(var(--steps),minmax(0,1fr))] md:gap-0 md:border-t md:border-sky/20"
+          style={{ "--steps": steps.length } as React.CSSProperties}
         >
           <div
             aria-hidden="true"
-            className="absolute -top-px left-0 h-0.5 bg-accent transition-[width] duration-[600ms] ease-out-soft"
+            className="absolute -top-px left-0 hidden h-0.5 bg-accent transition-[width] duration-[600ms] ease-out-soft md:block"
             style={{ width: `${((active + 1) / steps.length) * 100}%` }}
           />
           {steps.map((step, index) => (
@@ -65,8 +68,8 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
               aria-controls={`${tabsId}-panel`}
               onClick={() => setActive(index)}
               className={cn(
-                "flex cursor-pointer flex-col gap-2.5 border-0 border-r border-sky/12 bg-transparent px-4 py-5 text-left font-[inherit] transition-colors duration-250 first:pl-0 hover:text-white",
-                index === active ? "text-white" : "text-white/50",
+                "flex cursor-pointer flex-col gap-2.5 rounded-[4px] border border-sky/16 bg-transparent px-3.5 py-3.5 text-left font-[inherit] transition-colors duration-250 hover:text-white md:rounded-none md:border-0 md:border-r md:border-sky/12 md:px-4 md:py-5 md:first:pl-0",
+                index === active ? "text-white max-md:border-accent max-md:bg-accent/12" : "text-white/50",
               )}
             >
               <span className="text-[clamp(14px,1.3vw,18px)] leading-tight font-medium">{step.title}</span>
@@ -118,17 +121,11 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
                   <p className="m-0 max-w-[540px] lead-text text-white/75">{current.text}</p>
                 </div>
                 {current.specs.length ? (
-                  <dl className="m-0 flex flex-col">
-                    {current.specs.map((spec) => (
-                      <div
-                        key={spec.k}
-                        className="grid grid-cols-[minmax(140px,1fr)_2fr] gap-6 border-t border-sky/16 py-4 text-[15px]"
-                      >
-                        <dt className="pt-0.5 text-[13px] text-sky">{spec.k}</dt>
-                        <dd className="m-0 leading-normal text-white">{spec.v}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  <InfoBlocks
+                    tone="dark"
+                    minWidth={200}
+                    items={current.specs.map((spec) => ({ key: spec.k, label: spec.k, value: spec.v }))}
+                  />
                 ) : null}
               </motion.div>
             </AnimatePresence>

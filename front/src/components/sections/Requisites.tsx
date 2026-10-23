@@ -1,5 +1,6 @@
 import { Reveal } from "@/components/animations/Reveal";
 import { SmartLink } from "@/components/ui/SmartLink";
+import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import type { SiteSettings } from "@/types/content";
 
 type Props = { title: string; text: string; site: SiteSettings };
@@ -17,16 +18,7 @@ export function Requisites({ title, text, site }: Props) {
           {text ? <p className="m-0 max-w-[440px] lead-text text-muted">{text}</p> : null}
         </Reveal>
         <Reveal className="flex flex-col gap-8">
-          {rows.length ? (
-            <dl className="m-0 flex flex-col border-b border-line">
-              {rows.map((row) => (
-                <div key={row.k} className="grid grid-cols-[minmax(140px,1fr)_2fr] gap-6 border-t border-line py-4">
-                  <dt className="pt-0.5 text-[13px] text-accent-dark">{row.k}</dt>
-                  <dd className="m-0 text-base text-navy-950">{row.v}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
+          {rows.length ? <InfoBlocks items={rows.map((row) => ({ key: row.k, label: row.k, value: row.v }))} /> : null}
           {site.documents.length ? (
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {site.documents.map((doc) => (

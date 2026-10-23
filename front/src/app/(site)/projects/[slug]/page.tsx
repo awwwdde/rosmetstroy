@@ -8,6 +8,7 @@ import { PageFallback } from "@/components/layout/PageFallback";
 import { ImageHero } from "@/components/sections/PageHero";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { MediaImage } from "@/components/ui/MediaImage";
+import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { PLACEHOLDER_SLUG, getProject, getSiteSettings, staticSlugs } from "@/services/content";
 import type { ProjectDetail } from "@/types/content";
@@ -146,15 +147,15 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
       />
 
       {params_.length ? (
-        <section className="border-b border-mist bg-white">
-          <dl className="m-0 container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))]">
-            {params_.map((p) => (
-              <div key={p.k} className="flex flex-col gap-2 border-r border-mist px-6 py-7 first:pl-0">
-                <dt className="text-[13px] text-accent-dark">{p.k}</dt>
-                <dd className="m-0 text-lg font-medium text-navy-950">{p.v}</dd>
-              </div>
-            ))}
-          </dl>
+        <section className="bg-white pt-10">
+          <div className="container-site">
+            <InfoBlocks
+              tone="paper"
+              minWidth={200}
+              size="lg"
+              items={params_.map((p) => ({ key: p.k, label: p.k, value: p.v }))}
+            />
+          </div>
         </section>
       ) : null}
 

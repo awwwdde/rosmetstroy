@@ -11,9 +11,12 @@ export function Highlights({ items }: Props) {
   if (!list.length) return null;
   return (
     <section aria-label="Показатели" className="border-y border-line bg-white">
-      <Reveal className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+      <Reveal className="container-site grid grid-cols-2 gap-x-6 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none lg:gap-x-0">
         {list.map((item) => (
-          <div key={item.label} className="flex flex-col gap-2 border-r border-line px-6 py-10 first:pl-0">
+          <div
+            key={item.label}
+            className="flex flex-col gap-2 border-line py-7 max-lg:nth-[n+3]:border-t lg:border-r lg:px-6 lg:py-10 lg:first:pl-0 lg:last:border-r-0"
+          >
             <span className="text-[clamp(36px,4vw,56px)] leading-none font-semibold tracking-[-.03em] text-navy-950">
               {item.value}
             </span>

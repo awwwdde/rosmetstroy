@@ -95,7 +95,10 @@ export function Header({
       onMouseLeave={() => setMega(false)}
       className={cn(
         "fixed inset-x-0 top-0 z-50 border-b font-sans text-white transition-[background-color,border-color] duration-[350ms]",
-        solid ? "border-sky/12 bg-[rgba(7,29,54,.86)] backdrop-blur-[14px]" : "border-transparent bg-transparent",
+        // На телефоне шапка почти непрозрачная: текст страницы не просвечивает рядом с логотипом
+        solid
+          ? "border-sky/12 bg-[rgba(7,29,54,.97)] backdrop-blur-[14px] min-[1080px]:bg-[rgba(7,29,54,.86)]"
+          : "border-transparent bg-transparent",
       )}
     >
       <div
@@ -156,7 +159,7 @@ export function Header({
           </a>
           <Link
             href="/request"
-            className="hidden h-11 items-center gap-2.5 rounded-[4px] border border-white/50 px-5 text-sm font-medium text-white no-underline transition-[background-color,border-color] duration-200 hover:border-accent hover:bg-accent hover:text-white min-[420px]:flex"
+            className="hidden h-11 items-center gap-2.5 rounded-[4px] border border-white/50 px-5 text-sm font-medium whitespace-nowrap text-white no-underline transition-[background-color,border-color] duration-200 hover:border-accent hover:bg-accent hover:text-white sm:flex"
           >
             {ctaLabel}
             <span aria-hidden="true" className="text-base">

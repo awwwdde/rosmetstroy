@@ -51,7 +51,8 @@ export function HomeHero({ data }: { data: HomeSections["hero"] }) {
 
       {data.facts.length ? (
         <div className="relative border-t border-sky/18 bg-[rgba(7,29,54,.55)] backdrop-blur-[10px]">
-          <ul className="m-0 container-site grid list-none grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+          {/* Телефон — столбец, планшет — 2 колонки, десктоп — строка с разделителями; отступы не «съезжают» */}
+          <ul className="m-0 container-site grid list-none grid-cols-1 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-4 lg:gap-x-0">
             {data.facts.map((fact, index) => {
               // Первое направление (металлоконструкции) — основное, выделено акцентной линией
               const body = (
@@ -64,16 +65,19 @@ export function HomeHero({ data }: { data: HomeSections["hero"] }) {
                 </>
               );
               return (
-                <li key={fact.title} className="border-r border-sky/14 px-6 first:pl-0">
+                <li
+                  key={fact.title}
+                  className="border-sky/14 max-lg:not-first:border-t sm:max-lg:nth-2:border-t-0 lg:border-r lg:px-6 lg:first:pl-0 lg:last:border-r-0"
+                >
                   {fact.href ? (
                     <SmartLink
                       href={fact.href}
-                      className="flex flex-col gap-1 py-[26px] text-white no-underline transition-colors hover:text-sky"
+                      className="flex flex-col gap-1 py-5 text-white no-underline transition-colors hover:text-sky lg:py-[26px]"
                     >
                       {body}
                     </SmartLink>
                   ) : (
-                    <div className="flex flex-col gap-1 py-[26px]">{body}</div>
+                    <div className="flex flex-col gap-1 py-5 lg:py-[26px]">{body}</div>
                   )}
                 </li>
               );

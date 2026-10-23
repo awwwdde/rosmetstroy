@@ -15,6 +15,7 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { MediaImage } from "@/components/ui/MediaImage";
 import { SmartLink } from "@/components/ui/SmartLink";
+import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { PLACEHOLDER_SLUG, getService, getSiteSettings, staticSlugs } from "@/services/content";
 import type { Service } from "@/types/content";
@@ -143,22 +144,11 @@ function Specs({ service }: { service: Service }) {
           </div>
         </Reveal>
         <Reveal>
-          <table className="w-full border-collapse text-base leading-normal">
-            <thead>
-              <tr className="text-left text-[13px] text-white/45">
-                <th className="pb-3 font-normal">Параметр</th>
-                <th className="pb-3 font-normal">Значение</th>
-              </tr>
-            </thead>
-            <tbody>
-              {service.specs.map((spec) => (
-                <tr key={spec.k} className="border-t border-sky/16 align-top">
-                  <td className="w-[42%] py-[18px] pr-5 text-white/65">{spec.k}</td>
-                  <td className="py-[18px]">{spec.v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InfoBlocks
+            tone="dark"
+            minWidth={200}
+            items={service.specs.map((spec) => ({ key: spec.k, label: spec.k, value: spec.v }))}
+          />
         </Reveal>
       </div>
     </section>
@@ -196,7 +186,7 @@ function Execution({ service }: { service: Service }) {
   );
 }
 
-/** «Состав работ»: тёмная таблица в стиле блока технических характеристик из дизайна. */
+/** «Состав работ»: карточки на тёмном фоне в стиле блока технических характеристик. */
 function Scope({ service }: { service: Service }) {
   if (!service.scope.length) return null;
   return (
@@ -208,17 +198,12 @@ function Scope({ service }: { service: Service }) {
           </h2>
         </Reveal>
         <Reveal>
-          <dl className="m-0 flex flex-col border-b border-sky/16">
-            {service.scope.map((item) => (
-              <div
-                key={item.title}
-                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-5 border-t border-sky/16 py-[18px] text-base leading-normal"
-              >
-                <dt className="font-medium">{item.title}</dt>
-                <dd className="m-0 text-white/70">{item.description}</dd>
-              </div>
-            ))}
-          </dl>
+          <InfoBlocks
+            tone="dark"
+            variant="title"
+            minWidth={260}
+            items={service.scope.map((item) => ({ key: item.title, label: item.title, value: item.description }))}
+          />
         </Reveal>
       </div>
     </section>
@@ -295,29 +280,22 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
             </ButtonLink>
           ) : null}
         </div>
-        <div className="relative h-[clamp(360px,48vw,720px)] overflow-hidden rounded-t-[6px] bg-navy-800">
-          <MediaImage
-            src={service.cover?.url}
-            alt={service.cover?.alt || service.title}
-            sizes="(min-width: 1440px) 1344px, 100vw"
-            priority
-          />
+        <div className="relative">
+          <div className="relative h-[clamp(260px,48vw,720px)] overflow-hidden rounded-[6px] bg-navy-800 sm:rounded-b-none">
+            <MediaImage
+              src={service.cover?.url}
+              alt={service.cover?.alt || service.title}
+              sizes="(min-width: 1440px) 1344px, 100vw"
+              priority
+            />
+          </div>
           {service.hero_badges.length ? (
-            <dl
-              className="pointer-events-none absolute right-0 bottom-0 m-0 grid gap-x-10 gap-y-3 rounded-tl-[6px] bg-white px-6 py-5 max-sm:left-0 max-sm:rounded-none"
-              style={{ gridTemplateColumns: `repeat(${service.hero_badges.length}, auto)` }}
-            >
-              {service.hero_badges.map((b) => (
-                <dt key={`k-${b.k}`} className="row-start-1 text-[13px] text-accent-dark">
-                  {b.k}
-                </dt>
-              ))}
-              {service.hero_badges.map((b) => (
-                <dd key={`v-${b.k}`} className="row-start-2 m-0 text-[15px] font-medium text-navy-950">
-                  {b.v}
-                </dd>
-              ))}
-            </dl>
+            // На телефоне — карточки под фото; с 640px — плашка поверх фото в правом нижнем углу
+            <InfoBlocks
+              minWidth={150}
+              className="mt-3 sm:pointer-events-none sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:flex sm:gap-0 sm:rounded-tl-[6px] sm:bg-white sm:px-3 sm:py-2 sm:[&>div]:border-0 sm:[&>div]:bg-transparent sm:[&>div]:px-3 sm:[&>div]:py-3"
+              items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))}
+            />
           ) : null}
         </div>
       </LightHero>

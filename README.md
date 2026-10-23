@@ -180,5 +180,5 @@ Caddy сам выпустит сертификат Let's Encrypt для `SITE_DO
 <p align="center"><img src=".github/assets/divider.svg" alt="" width="100%"></p>
 
 <p align="center">
-  <sub>© ООО «Росметстрой» · Москва, ул. Верхние Поля, д. 46, стр. 9 · <a href="mailto:info@rosmetstroy.ru">info@rosmetstroy.ru</a></sub>
+  <sub>© ООО «Комплексные решения» · Москва, ул. Верхние Поля, д. 46, стр. 9 · <a href="mailto:info@rosmetstroy.ru">info@rosmetstroy.ru</a></sub>
 </p>
