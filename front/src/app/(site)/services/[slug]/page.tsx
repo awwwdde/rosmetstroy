@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { Reveal } from "@/components/animations/Reveal";
 import { PageFallback } from "@/components/layout/PageFallback";
+import { PartnerStudio } from "@/components/sections/PartnerStudio";
 import { BandCta } from "@/components/sections/BandCta";
 import { FeatureGrid } from "@/components/sections/FeatureGrid";
 import { LightHero } from "@/components/sections/PageHero";
@@ -263,6 +264,8 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
   if (slug === PLACEHOLDER_SLUG) notFound();
   const [service, site] = await Promise.all([getService(slug), getSiteSettings()]);
   if (!service) notFound();
+  // У партнёрских услуг фото не обязательно: без обложки блок не показываем вовсе
+  const showCover = Boolean(service.cover) || !service.is_partner;
 
   return (
     <>
@@ -291,24 +294,29 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
             </PartnerLink>
           ) : null}
         </div>
-        <div className="relative">
-          <div className="relative h-[clamp(260px,48vw,720px)] overflow-hidden rounded-[6px] bg-navy-800 sm:rounded-b-none">
-            <MediaImage
-              src={service.cover?.url}
-              alt={service.cover?.alt || service.title}
-              sizes="(min-width: 1440px) 1344px, 100vw"
-              priority
-            />
+        {showCover ? (
+          <div className="relative">
+            <div className="relative h-[clamp(260px,48vw,720px)] overflow-hidden rounded-[6px] bg-navy-800 sm:rounded-b-none">
+              <MediaImage
+                src={service.cover?.url}
+                alt={service.cover?.alt || service.title}
+                sizes="(min-width: 1440px) 1344px, 100vw"
+                priority
+              />
+            </div>
+            {service.hero_badges.length ? (
+              // На телефоне — карточки под фото; с 640px — плашка поверх фото в правом нижнем углу
+              <InfoBlocks
+                minWidth={150}
+                className="mt-3 sm:pointer-events-none sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:flex sm:gap-0 sm:rounded-tl-[6px] sm:bg-white sm:px-3 sm:py-2 sm:[&>div]:border-0 sm:[&>div]:bg-transparent sm:[&>div]:px-3 sm:[&>div]:py-3"
+                items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))}
+              />
+            ) : null}
           </div>
-          {service.hero_badges.length ? (
-            // На телефоне — карточки под фото; с 640px — плашка поверх фото в правом нижнем углу
-            <InfoBlocks
-              minWidth={150}
-              className="mt-3 sm:pointer-events-none sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:flex sm:gap-0 sm:rounded-tl-[6px] sm:bg-white sm:px-3 sm:py-2 sm:[&>div]:border-0 sm:[&>div]:bg-transparent sm:[&>div]:px-3 sm:[&>div]:py-3"
-              items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))}
-            />
-          ) : null}
-        </div>
+        ) : (
+          // Партнёрская услуга без фото: вместо пустой обложки — только ключевые условия
+          <InfoBlocks minWidth={220} items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))} />
+        )}
       </LightHero>
       {service.description ? (
         <TextBlock
@@ -317,6 +325,7 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
           paragraphs={service.description.split(/\n{2,}/).filter(Boolean)}
         />
       ) : null}
+      {service.is_partner ? <PartnerStudio partner={site.partner} /> : null}
       <FeatureGrid
         id="tasks"
         tone="paper"

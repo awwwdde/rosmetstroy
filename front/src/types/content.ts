@@ -167,7 +167,16 @@ export type SiteSettings = {
   highlights?: { value: string; label: string }[];
   requisites?: KeyValue[];
   /** Партнёрская студия, которая оказывает IT-услуги; пустой url — ссылка не выводится */
-  partner?: { name: string; url: string };
+  partner?: {
+    name: string;
+    url: string;
+    /** Описание студии для страницы партнёрской услуги */
+    about?: string;
+    facts?: KeyValue[];
+    competencies?: TitleTextItem[];
+    /** Проекты студии: название и короткое описание */
+    cases?: TitleTextItem[];
+  };
   seo: {
     default_title: string;
     title_template: string;

@@ -98,11 +98,45 @@ const GROUPS: { title: string; fields: FieldDef[] }[] = [
       { key: "socials", label: "Социальные сети", type: "list", itemTitle: "label", fields: link },
       {
         key: "partner",
-        label: "Партнёрская IT-студия (ссылка в блоке IT, на странице услуги и в подвале)",
+        label: "Партнёрская IT-студия (ссылка в блоке IT и подвале, блок «О студии» на странице услуги)",
         type: "group",
         fields: [
           { key: "name", label: "Название", type: "text" },
           { key: "url", label: "Сайт (https://…)", type: "text" },
+          { key: "about", label: "Описание студии (страница партнёрской услуги)", type: "textarea" },
+          {
+            key: "facts",
+            label: "Факты о студии",
+            type: "list",
+            itemTitle: "k",
+            max: 6,
+            fields: [
+              { key: "k", label: "Подпись", type: "text" },
+              { key: "v", label: "Значение", type: "text" },
+            ],
+          },
+          {
+            key: "competencies",
+            label: "Что делает студия",
+            type: "list",
+            itemTitle: "title",
+            max: 8,
+            fields: [
+              { key: "title", label: "Название", type: "text" },
+              { key: "text", label: "Описание", type: "textarea" },
+            ],
+          },
+          {
+            key: "cases",
+            label: "Проекты студии",
+            type: "list",
+            itemTitle: "title",
+            max: 8,
+            fields: [
+              { key: "title", label: "Название проекта", type: "text" },
+              { key: "text", label: "Что сделано, отрасль, город", type: "textarea" },
+            ],
+          },
         ],
       },
     ],
