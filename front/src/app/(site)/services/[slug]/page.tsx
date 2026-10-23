@@ -315,7 +315,12 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
           </div>
         ) : (
           // Партнёрская услуга без фото: вместо пустой обложки — только ключевые условия
-          <InfoBlocks minWidth={220} items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))} />
+          <InfoBlocks
+            stretch
+            minWidth={220}
+            size="lg"
+            items={service.hero_badges.map((b) => ({ key: b.k, label: b.k, value: b.v }))}
+          />
         )}
       </LightHero>
       {service.description ? (

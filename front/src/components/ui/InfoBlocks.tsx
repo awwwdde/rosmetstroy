@@ -34,6 +34,7 @@ export function InfoBlocks({
   variant = "pair",
   minWidth = 240,
   size = "md",
+  stretch = false,
   className,
 }: {
   items: InfoBlock[];
@@ -42,6 +43,8 @@ export function InfoBlocks({
   /** Минимальная ширина карточки, px: от неё зависит число колонок */
   minWidth?: number;
   size?: "md" | "lg";
+  /** Растянуть карточки на всю ширину, если их меньше, чем помещается колонок */
+  stretch?: boolean;
   className?: string;
 }) {
   if (!items.length) return null;
@@ -49,7 +52,9 @@ export function InfoBlocks({
   return (
     <dl
       className={cn("m-0 grid gap-3", className)}
-      style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minWidth}px), 1fr))` }}
+      style={{
+        gridTemplateColumns: `repeat(${stretch ? "auto-fit" : "auto-fill"}, minmax(min(100%, ${minWidth}px), 1fr))`,
+      }}
     >
       {items.map((item, index) => (
         <div key={item.key ?? index} className={cn("flex min-w-0 flex-col gap-2 rounded-[6px] border p-5", t.card)}>
