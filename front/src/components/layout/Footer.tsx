@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SmartLink } from "@/components/ui/SmartLink";
+import { PartnerLink } from "@/components/ui/PartnerLink";
 import type { LinkItem, SiteSettings } from "@/types/content";
 
 import { Logo } from "./Logo";
@@ -78,7 +79,18 @@ export function Footer({ site, services }: Props) {
               ))}
             </span>
           ) : null}
-          <span>{site.footer_note}</span>
+          <span>
+            {site.footer_note}
+            {site.partner?.url ? (
+              <>
+                {" "}
+                <PartnerLink
+                  partner={site.partner}
+                  className="text-white/70 underline-offset-4 hover:text-white hover:underline"
+                />
+              </>
+            ) : null}
+          </span>
         </div>
       </div>
     </footer>

@@ -96,6 +96,15 @@ const GROUPS: { title: string; fields: FieldDef[] }[] = [
         ],
       },
       { key: "socials", label: "Социальные сети", type: "list", itemTitle: "label", fields: link },
+      {
+        key: "partner",
+        label: "Партнёрская IT-студия (ссылка в блоке IT, на странице услуги и в подвале)",
+        type: "group",
+        fields: [
+          { key: "name", label: "Название", type: "text" },
+          { key: "url", label: "Сайт (https://…)", type: "text" },
+        ],
+      },
     ],
   },
   {

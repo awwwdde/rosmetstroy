@@ -52,7 +52,7 @@ async function HomeContent() {
       {shown(s.projects) ? <FeaturedProjects data={s.projects} projects={featured} /> : null}
       {shown(s.process) ? <WorkProcess data={s.process} /> : null}
       {shown(s.reasons) ? <Reasons data={s.reasons} /> : null}
-      {shown(s.it) ? <ItPartner data={s.it} /> : null}
+      {shown(s.it) ? <ItPartner data={s.it} partner={site.partner} /> : null}
       {shown(s.faq) ? <HomeFaq data={s.faq} items={generalFaq} /> : null}
       {shown(s.cta) ? <CtaSection data={s.cta} site={site} /> : null}
       <JsonLd

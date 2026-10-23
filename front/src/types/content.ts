@@ -166,6 +166,8 @@ export type SiteSettings = {
   /** Подтверждённые показатели (значение + подпись); пустой список — блок скрыт */
   highlights?: { value: string; label: string }[];
   requisites?: KeyValue[];
+  /** Партнёрская студия, которая оказывает IT-услуги; пустой url — ссылка не выводится */
+  partner?: { name: string; url: string };
   seo: {
     default_title: string;
     title_template: string;

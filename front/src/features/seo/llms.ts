@@ -54,7 +54,9 @@ function facts(site: SiteSettings, services: ServiceCard[]): string[] {
   if (partner.length) {
     // Важно для корректных ответов нейросетей: IT-услуги — не собственная компетенция компании
     result.push(
-      `- Услуги «${partner.map((s) => s.title).join("», «")}» оказывает партнёрская студия, а не ${site.company_name}.`,
+      `- Услуги «${partner.map((s) => s.title).join("», «")}» оказывает партнёрская студия${
+        site.partner?.url ? ` ${site.partner.name} (${site.partner.url})` : ""
+      }, а не ${site.company_name}.`,
     );
   }
   return result;

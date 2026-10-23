@@ -94,7 +94,7 @@ export function Header({
     <header
       onMouseLeave={() => setMega(false)}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b font-sans text-white transition-[background-color,border-color] duration-[350ms]",
+        "fixed inset-x-0 top-0 z-50 border-b font-sans text-white min-[1080px]:transition-[background-color,border-color] min-[1080px]:duration-[350ms]",
         // На телефоне шапка почти непрозрачная: текст страницы не просвечивает рядом с логотипом
         solid
           ? "border-sky/12 bg-[rgba(7,29,54,.97)] backdrop-blur-[14px] min-[1080px]:bg-[rgba(7,29,54,.86)]"

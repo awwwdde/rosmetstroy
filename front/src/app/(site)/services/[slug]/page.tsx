@@ -11,14 +11,15 @@ import { LightHero } from "@/components/sections/PageHero";
 import { SectionIntro } from "@/components/sections/SectionIntro";
 import { TextBlock } from "@/components/sections/TextBlock";
 import { Accordion } from "@/components/ui/Accordion";
-import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ButtonLink, buttonClass } from "@/components/ui/ButtonLink";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { MediaImage } from "@/components/ui/MediaImage";
+import { ExternalIcon, PartnerLink } from "@/components/ui/PartnerLink";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { PLACEHOLDER_SLUG, getService, getSiteSettings, staticSlugs } from "@/services/content";
-import type { Service } from "@/types/content";
+import type { Service, SiteSettings } from "@/types/content";
 
 export function generateStaticParams() {
   return staticSlugs("services");
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/services/[slug]">
   });
 }
 
-function serviceJsonLd(service: Service) {
+function serviceJsonLd(service: Service, partner: SiteSettings["partner"]) {
   const faq = service.faq;
   const url = absoluteUrl(`/services/${service.slug}`);
   return {
@@ -52,7 +53,11 @@ function serviceJsonLd(service: Service) {
         url,
         image: service.cover ? absoluteUrl(service.cover.url) : undefined,
         // Партнёрские услуги (IT) оказывает партнёрская студия, а не компания
-        provider: service.is_partner ? undefined : { "@id": ORG_ID },
+        provider: service.is_partner
+          ? partner?.url
+            ? { "@type": "Organization", name: partner.name, url: partner.url }
+            : undefined
+          : { "@id": ORG_ID },
         brand: service.is_partner ? undefined : { "@id": ORG_ID },
         areaServed: "RU",
         hasOfferCatalog: service.scope.length
@@ -256,7 +261,7 @@ function Related({ service }: { service: Service }) {
 async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "params">) {
   const { slug } = await params;
   if (slug === PLACEHOLDER_SLUG) notFound();
-  const service = await getService(slug);
+  const [service, site] = await Promise.all([getService(slug), getSiteSettings()]);
   if (!service) notFound();
 
   return (
@@ -278,6 +283,12 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
             <ButtonLink href="#faq" variant="outlineDark" size="md" arrow={null} className="h-14">
               Вопросы
             </ButtonLink>
+          ) : null}
+          {service.is_partner ? (
+            <PartnerLink partner={site.partner} className={buttonClass("outlineDark", "md", "h-14")}>
+              Сайт студии {site.partner?.name}
+              <ExternalIcon />
+            </PartnerLink>
           ) : null}
         </div>
         <div className="relative">
@@ -338,7 +349,7 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
         label="Отправить документацию"
         href={`/request?service=${service.slug}`}
       />
-      <JsonLd data={serviceJsonLd(service)} />
+      <JsonLd data={serviceJsonLd(service, site.partner)} />
     </>
   );
 }
