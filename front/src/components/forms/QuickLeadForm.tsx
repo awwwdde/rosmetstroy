@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 
 import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
 import { ACCEPT_ATTR, type QuickValues, quickSchema } from "@/features/leads/schema";
+import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
 import { cn, formatBytes } from "@/lib/utils";
 
 const fieldClass =
@@ -26,7 +27,7 @@ export function QuickLeadForm({ successTitle }: Props) {
     formState: { errors },
   } = useForm<QuickValues>({
     resolver: zodResolver(quickSchema),
-    defaultValues: { name: "", phone: "", description: "" },
+    defaultValues: { name: "", phone: "", description: "", consent: false },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -152,6 +153,7 @@ export function QuickLeadForm({ successTitle }: Props) {
               {error}
             </p>
           ) : null}
+          <ConsentCheckbox tone="dark" registration={register("consent")} error={errors.consent?.message} />
           <button
             type="submit"
             disabled={status === "loading" || hasProblems}
@@ -159,13 +161,6 @@ export function QuickLeadForm({ successTitle }: Props) {
           >
             {status === "loading" ? "Отправляем…" : "Отправить на расчёт →"}
           </button>
-          <span className="text-xs leading-normal text-white/45">
-            Отправляя форму, вы соглашаетесь с{" "}
-            <Link href="/privacy" className="text-white/60 underline underline-offset-2 hover:text-white">
-              политикой обработки персональных данных
-            </Link>
-            .
-          </span>
         </motion.form>
       )}
     </AnimatePresence>

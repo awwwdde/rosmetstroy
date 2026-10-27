@@ -32,6 +32,9 @@ class Lead(TimestampMixin, Base):
     source_page: Mapped[str] = mapped_column(String(500), default="")
     ip: Mapped[str] = mapped_column(String(64), default="")
     user_agent: Mapped[str] = mapped_column(String(512), default="")
+    # Подтверждение согласия на обработку ПД (152-ФЗ): когда и на какую редакцию документа
+    consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    consent_document: Mapped[str] = mapped_column(String(255), default="")
 
     files: Mapped[list["LeadFile"]] = relationship(back_populates="lead", cascade="all, delete-orphan", lazy="selectin")
     comments: Mapped[list["LeadComment"]] = relationship(

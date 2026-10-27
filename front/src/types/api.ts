@@ -1022,6 +1022,11 @@ export interface components {
        */
       source_page: string;
       /**
+       * Consent
+       * @default false
+       */
+      consent: boolean;
+      /**
        * Website
        * @default
        */
@@ -1321,6 +1326,10 @@ export interface components {
       ip: string;
       /** User Agent */
       user_agent: string;
+      /** Consent At */
+      consent_at: string | null;
+      /** Consent Document */
+      consent_document: string;
       /**
        * Updated At
        * Format: date-time

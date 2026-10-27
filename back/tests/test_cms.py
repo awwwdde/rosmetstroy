@@ -179,7 +179,9 @@ async def test_users_and_lead_comments_can_be_deleted(admin: AsyncClient, client
 
     token = (await client.get("/api/v1/leads/token")).json()["token"]
     lead = (
-        await client.post("/api/v1/leads", data={"name": "Тест", "phone": "+79000000000", "form_token": token})
+        await client.post(
+            "/api/v1/leads", data={"name": "Тест", "phone": "+79000000000", "consent": "true", "form_token": token}
+        )
     ).json()
     comment = (await admin.post(f"/api/v1/admin/leads/{lead['id']}/comments", json={"body": "Удалить"})).json()
     assert (await admin.delete(f"/api/v1/admin/leads/{lead['id']}/comments/{comment['id']}")).status_code == 204

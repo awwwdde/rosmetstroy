@@ -15,7 +15,8 @@ CUSTOM_TEMPLATE = "custom"
 # Адреса, занятые разделами сайта и служебными путями: собственные страницы их не перекрывают
 RESERVED_SLUGS = {
     "home", "about", "metalwork", "production", "services", "projects", "blog", "faq", "contacts", "request",
-    "privacy", "not-found", "admin", "api", "media", "images", "brand", "sitemap", "robots", "manifest",
+    "privacy", "consent", "not-found", "admin", "api", "media", "images", "brand", "sitemap", "robots", "manifest",
+    "healthz", "llms", "indexnow-key",
 }  # fmt: skip
 
 

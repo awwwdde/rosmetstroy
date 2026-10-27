@@ -56,6 +56,19 @@ async def send_telegram(text: str) -> None:
         resp.raise_for_status()
 
 
+def lead_short(data: dict[str, str]) -> str:
+    """Уведомление без персональных данных: серверы Telegram находятся за рубежом, а передача туда
+    имён и телефонов была бы трансграничной передачей ПД (152-ФЗ, ст. 12). Подробности — в админке."""
+    return "\n".join(
+        [
+            f"Новая заявка {data['number']}",
+            f"Направление: {data['service'] or '—'}",
+            f"Файлов: {data['files']}",
+            f"Открыть в админке: {settings.site_url.rstrip('/')}/admin/leads/{data['id']}",
+        ]
+    )
+
+
 async def notify_new_lead(data: dict[str, str]) -> None:
     text = lead_summary(data)
     # Сбой уведомления не должен влиять на сохранённую заявку
@@ -64,6 +77,6 @@ async def notify_new_lead(data: dict[str, str]) -> None:
     except Exception:
         log.exception("Не удалось отправить e-mail по заявке %s", data["number"])
     try:
-        await send_telegram(text)
+        await send_telegram(lead_short(data))
     except Exception:
         log.exception("Не удалось отправить сообщение в Telegram по заявке %s", data["number"])

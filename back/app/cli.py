@@ -82,19 +82,27 @@ async def seed() -> None:
 async def bootstrap() -> None:
     """Идемпотентная подготовка базы при старте контейнера.
 
-    Администратор создаётся, только если пользователей ещё нет: пароль, сменённый
-    в админке, не перезаписывается при каждом деплое.
+    Администратор из ADMIN_EMAIL / ADMIN_PASSWORD создаётся, если пользователя с таким e-mail
+    ещё нет, — даже когда в базе уже есть другие пользователи. Пароль существующего
+    пользователя не перезаписывается (его могли сменить в админке); сбросить его можно,
+    задав ADMIN_RESET_PASSWORD=true на один деплой.
     """
     await seed()
-    email, password = os.environ.get("ADMIN_EMAIL", ""), os.environ.get("ADMIN_PASSWORD", "")
+    email = os.environ.get("ADMIN_EMAIL", "").strip()
+    password = os.environ.get("ADMIN_PASSWORD", "")
     async with SessionLocal() as db:
         has_users = bool(await db.scalar(select(func.count()).select_from(User)))
-    if has_users:
+        existing = await db.scalar(select(User).where(func.lower(User.email) == email.lower())) if email else None
+    if not email:
+        if not has_users:
+            print("Пользователей нет: задайте ADMIN_EMAIL и ADMIN_PASSWORD (не короче 10 символов) и передеплойте")
         return
-    if not email or len(password) < 10:
-        print("Пользователей нет: задайте ADMIN_EMAIL и ADMIN_PASSWORD (не короче 10 символов) и передеплойте")
+    if len(password) < 10:
+        print("ADMIN_PASSWORD короче 10 символов — администратор из окружения не создан")
         return
-    await create_admin(email, password, os.environ.get("ADMIN_NAME", "Администратор"))
+    reset = os.environ.get("ADMIN_RESET_PASSWORD", "").strip().lower() in {"1", "true", "yes"}
+    if existing is None or reset:
+        await create_admin(email, password, os.environ.get("ADMIN_NAME", "Администратор"))
 
 
 def main() -> None:

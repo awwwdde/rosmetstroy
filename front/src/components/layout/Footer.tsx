@@ -4,6 +4,7 @@ import { SmartLink } from "@/components/ui/SmartLink";
 import { PartnerLink } from "@/components/ui/PartnerLink";
 import type { LinkItem, SiteSettings } from "@/types/content";
 
+import { CookieSettingsButton } from "./CookieConsent";
 import { Logo } from "./Logo";
 
 type Props = { site: SiteSettings; services: LinkItem[] };
@@ -79,6 +80,7 @@ export function Footer({ site, services }: Props) {
               ))}
             </span>
           ) : null}
+          <CookieSettingsButton />
           <span>
             {site.footer_note}
             {site.partner?.url ? (

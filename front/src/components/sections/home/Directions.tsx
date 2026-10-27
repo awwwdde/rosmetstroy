@@ -6,10 +6,18 @@ import type { HomeSections } from "@/types/content";
 
 import { SectionIntro } from "../SectionIntro";
 
+const POSITIONS: Record<string, string> = {
+  center: "center",
+  top: "center top",
+  bottom: "center bottom",
+  left: "left center",
+  right: "right center",
+};
+
 // Первое направление — основное: на широких экранах занимает 7 из 12 колонок и три ряда
 const LAYOUT = ["min-[900px]:col-span-7 min-[900px]:row-span-3", "min-[900px]:col-span-5"];
 
-export function Directions({ data }: { data: HomeSections["directions"] }) {
+export function Directions({ data, mainLabel }: { data: HomeSections["directions"]; mainLabel: string }) {
   return (
     <section id="directions" aria-labelledby="directions-title" className="scroll-mt-20 bg-paper section-y">
       <div className="container-site flex flex-col gap-14">
@@ -27,13 +35,29 @@ export function Directions({ data }: { data: HomeSections["directions"] }) {
                     <MediaImage
                       src={item.image}
                       alt={item.image_alt}
+                      objectPosition={POSITIONS[item.image_position ?? ""] ?? "center"}
                       sizes={main ? "(min-width: 900px) 58vw, 100vw" : "(min-width: 900px) 42vw, 100vw"}
                     />
                   </div>
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,29,54,0)_40%,rgba(7,29,54,.88)_100%)]" />
+                  {item.image ? (
+                    <>
+                      {/* Прогрессивное размытие: у нижнего края фото размыто сильнее, к середине — чётко */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-[78%] [mask-image:linear-gradient(to_top,#000_42%,transparent)] backdrop-blur-[14px]"
+                      />
+                      {/* Синий фирменный тон поверх размытия — текст читается на любом фото */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(7,29,54,.92)_0%,rgba(10,39,71,.74)_30%,rgba(16,61,112,.3)_60%,rgba(16,61,112,0)_100%)]"
+                      />
+                    </>
+                  ) : (
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,29,54,0)_40%,rgba(7,29,54,.88)_100%)]" />
+                  )}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-[clamp(24px,2.6vw,36px)]">
                     <div className="flex flex-col gap-2">
-                      {main ? <span className="text-[13px] text-sky">Основное направление</span> : null}
+                      {main ? <span className="text-[13px] text-sky">{mainLabel}</span> : null}
                       <h3
                         className={cn(
                           "m-0 leading-[1.1] font-semibold tracking-[-.02em] text-balance",

@@ -1,4 +1,7 @@
+import asyncio
+import contextlib
 import logging
+from collections.abc import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,13 +15,27 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.stored_file import StoredFile
+from app.services.retention import retention_loop
 
 logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
 
 if settings.is_production and settings.secret_key.startswith("dev-"):
     raise RuntimeError("SECRET_KEY должен быть задан в production")
 
+
+@contextlib.asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Ежедневное удаление заявок с истёкшим сроком хранения (в тестах не запускается)
+    task = None if settings.environment == "test" else asyncio.create_task(retention_loop())
+    yield
+    if task:
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Росметстрой API",
     version="1.0.0",
     openapi_url="/api/v1/openapi.json",

@@ -169,8 +169,24 @@ export const PAGE_TEMPLATES: Record<string, { fields: FieldDef[]; hasBody?: bool
             itemTitle: "title",
             fields: [
               ...titleText,
-              { key: "image", label: "Фото", type: "image" },
-              { key: "image_alt", label: "Описание фото", type: "text" },
+              {
+                key: "image",
+                label: "Фото (заполняет карточку целиком; текст ляжет на размытую синюю плашку)",
+                type: "image",
+              },
+              { key: "image_alt", label: "Описание фото (для поисковиков и незрячих)", type: "text" },
+              {
+                key: "image_position",
+                label: "Какую часть фото держать в кадре",
+                type: "select",
+                options: [
+                  { value: "center", label: "Центр" },
+                  { value: "top", label: "Верх" },
+                  { value: "bottom", label: "Низ" },
+                  { value: "left", label: "Левый край" },
+                  { value: "right", label: "Правый край" },
+                ],
+              },
               { key: "href", label: "Ссылка", type: "url" },
             ],
           },
@@ -404,6 +420,18 @@ export const PAGE_TEMPLATES: Record<string, { fields: FieldDef[]; hasBody?: bool
   },
   privacy: {
     path: "/privacy",
+    hasBody: true,
+    fields: [
+      {
+        key: "hero",
+        label: "Первый экран",
+        type: "group",
+        fields: [{ key: "title", label: "Заголовок", type: "text" }],
+      },
+    ],
+  },
+  consent: {
+    path: "/consent",
     hasBody: true,
     fields: [
       {

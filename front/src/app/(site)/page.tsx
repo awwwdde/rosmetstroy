@@ -19,6 +19,7 @@ import { buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { shown } from "@/lib/utils";
 import { getFaq, getPage, getProjects, getSiteSettings } from "@/services/content";
 import type { HomeSections } from "@/types/content";
+import { labelsOf } from "@/lib/labels";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getPage<HomeSections>("home"), getSiteSettings()]);
@@ -47,7 +48,7 @@ async function HomeContent() {
       <HomeHero data={s.hero} />
       {shown(s.about) ? <AboutIntro data={s.about} /> : null}
       <Highlights items={site.highlights} />
-      {shown(s.directions) ? <Directions data={s.directions} /> : null}
+      {shown(s.directions) ? <Directions data={s.directions} mainLabel={labelsOf(site).direction_main} /> : null}
       {shown(s.tasks) ? <FeatureGrid id="tasks" data={s.tasks} tone="white" /> : null}
       {shown(s.projects) ? <FeaturedProjects data={s.projects} projects={featured} /> : null}
       {shown(s.process) ? <WorkProcess data={s.process} /> : null}

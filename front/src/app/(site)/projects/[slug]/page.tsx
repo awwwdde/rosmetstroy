@@ -12,6 +12,7 @@ import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { PLACEHOLDER_SLUG, getProject, getSiteSettings, staticSlugs } from "@/services/content";
 import type { ProjectDetail } from "@/types/content";
+import { labelsOf } from "@/lib/labels";
 
 export function generateStaticParams() {
   return staticSlugs("projects");
@@ -121,8 +122,9 @@ function Gallery({ project }: { project: ProjectDetail }) {
 async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "params">) {
   const { slug } = await params;
   if (slug === PLACEHOLDER_SLUG) notFound();
-  const project = await getProject(slug);
+  const [project, site] = await Promise.all([getProject(slug), getSiteSettings()]);
   if (!project) notFound();
+  const l = labelsOf(site);
 
   // Базовые сведения о кейсе + подтверждённые характеристики из CMS
   const params_ = [
@@ -164,7 +166,7 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
           <div className="container-site">
             <Reveal className="flex max-w-[1100px] flex-col gap-7">
               {project.intro ? (
-                <span className="text-[13px] font-semibold tracking-[.02em] text-accent-dark">Задача заказчика</span>
+                <span className="text-[13px] font-semibold tracking-[.02em] text-accent-dark">{l.project_task}</span>
               ) : null}
               {project.intro ? (
                 <p className="m-0 text-[clamp(24px,2.4vw,36px)] leading-[1.3] font-medium tracking-[-.015em] text-pretty text-navy-950">
@@ -174,7 +176,7 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
               <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-8 text-[17px] leading-relaxed text-muted">
                 {project.company_role ? (
                   <div className="flex flex-col gap-3">
-                    <span className="text-[13px] font-semibold tracking-[.02em] text-navy-950">Роль «Росметстрой»</span>
+                    <span className="text-[13px] font-semibold tracking-[.02em] text-navy-950">{l.project_role}</span>
                     <span>{project.company_role}</span>
                   </div>
                 ) : null}
@@ -188,7 +190,9 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
                 ) : null}
                 {project.solution ? (
                   <div className="flex flex-col gap-3">
-                    <span className="text-[13px] font-semibold tracking-[.02em] text-navy-950">Организация работ</span>
+                    <span className="text-[13px] font-semibold tracking-[.02em] text-navy-950">
+                      {l.project_solution}
+                    </span>
                     <span>{project.solution}</span>
                   </div>
                 ) : null}
@@ -229,7 +233,7 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
         <section className="bg-navy-950 section-y-sm text-white">
           <div className="container-site">
             <Reveal className="flex flex-col gap-5">
-              <span className="text-[13px] text-sky">Результат</span>
+              <span className="text-[13px] text-sky">{l.project_result}</span>
               <p className="m-0 max-w-[1100px] text-[clamp(24px,2.4vw,36px)] leading-[1.3] font-medium tracking-[-.015em] text-pretty">
                 {project.result}
               </p>
@@ -265,7 +269,7 @@ async function ProjectContent({ params }: Pick<PageProps<"/projects/[slug]">, "p
           </div>
           <div className="pointer-events-none absolute inset-0 bg-[rgba(7,29,54,.6)]" />
           <div className="pointer-events-none absolute inset-0 container-site flex flex-col justify-between py-12">
-            <span className="text-[13px] text-sky">Следующий проект →</span>
+            <span className="text-[13px] text-sky">{l.project_next} →</span>
             <span className="text-[clamp(36px,5vw,72px)] leading-none font-semibold tracking-[-.035em]">
               {project.next_project.title}
             </span>

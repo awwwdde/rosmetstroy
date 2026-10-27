@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 from urllib.parse import quote
 
@@ -17,13 +17,14 @@ from fastapi import (
 )
 from fastapi.responses import Response
 from pydantic import Field
+from sqlalchemy import select
 
 from app.api.deps import DB, EditorUser, Paging, audit
 from app.api.utils import not_found
 from app.core.config import settings
 from app.core.rate_limit import client_ip, rate_limit
 from app.core.security import sign, unsign
-from app.models import Lead, LeadComment, LeadFile
+from app.models import Lead, LeadComment, LeadFile, Page
 from app.repositories.content import ServiceRepository
 from app.repositories.lead import LeadRepository
 from app.schemas.common import Paginated, Schema
@@ -62,6 +63,14 @@ async def form_token() -> FormToken:
     return FormToken(token=sign(str(int(time.time())), settings.secret_key))
 
 
+async def _consent_document(db: DB) -> str:
+    """Какую редакцию согласия принял пользователь — для подтверждения при проверке."""
+    page = await db.scalar(select(Page).where(Page.slug == "consent"))
+    if page is None:
+        return "Согласие на обработку персональных данных"
+    return f"{page.title} (/consent, ред. от {page.updated_at:%d.%m.%Y %H:%M} UTC)"
+
+
 def _check_antispam(form: LeadForm) -> None:
     issued = unsign(form.form_token, settings.secret_key)
     if issued is None or not issued.isdigit():
@@ -85,6 +94,8 @@ async def create_lead(
     files: Annotated[list[UploadFile] | None, File()] = None,
 ) -> LeadCreated:
     _check_antispam(form)
+    if not form.consent:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Нужно согласие на обработку персональных данных")
     uploads = [f for f in files or [] if f.filename]
     if len(uploads) > settings.lead_max_files:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"Не больше {settings.lead_max_files} файлов")
@@ -108,12 +119,14 @@ async def create_lead(
 
     lead = Lead(
         files=[],
-        **form.model_dump(exclude={"website", "form_token", "service_id", "service_label", "email"}),
+        **form.model_dump(exclude={"website", "form_token", "service_id", "service_label", "email", "consent"}),
         email=str(form.email),
         service_id=service_id,
         service_label=service_label,
         ip=client_ip(request),
         user_agent=request.headers.get("user-agent", "")[:512],
+        consent_at=datetime.now(UTC),
+        consent_document=await _consent_document(db),
     )
     db.add(lead)
     await db.flush()

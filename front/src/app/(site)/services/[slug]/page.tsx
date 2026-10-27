@@ -19,6 +19,7 @@ import { ExternalIcon, PartnerLink } from "@/components/ui/PartnerLink";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
+import { labelsOf } from "@/lib/labels";
 import { PLACEHOLDER_SLUG, getService, getSiteSettings, staticSlugs } from "@/services/content";
 import type { Service, SiteSettings } from "@/types/content";
 
@@ -132,14 +133,14 @@ function Uses({ service }: { service: Service }) {
   );
 }
 
-function Specs({ service }: { service: Service }) {
+function Specs({ service, title }: { service: Service; title: string }) {
   if (!service.specs.length) return null;
   return (
     <section aria-labelledby="specs-title" className="bg-navy-950 section-y-sm text-white">
       <div className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-x-20 gap-y-14">
         <Reveal className="flex flex-col gap-7">
           <h2 id="specs-title" className="m-0 heading-2-sm">
-            Технические характеристики
+            {title}
           </h2>
           <div className="relative mt-3 h-[clamp(280px,30vw,440px)] overflow-hidden rounded-[6px]">
             <MediaImage
@@ -161,14 +162,14 @@ function Specs({ service }: { service: Service }) {
   );
 }
 
-function Execution({ service }: { service: Service }) {
+function Execution({ service, title }: { service: Service; title: string }) {
   if (!service.stages.length && !service.execution_note) return null;
   return (
     <section aria-labelledby="stages-title" className="bg-paper section-y-sm">
       <div className="container-site flex flex-col gap-12">
         <Reveal className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-20 gap-y-6">
           <h2 id="stages-title" className="m-0 heading-2-sm text-navy-950">
-            Как организуется выполнение
+            {title}
           </h2>
           {service.execution_note ? <p className="m-0 lead-text text-muted">{service.execution_note}</p> : null}
         </Reveal>
@@ -193,14 +194,14 @@ function Execution({ service }: { service: Service }) {
 }
 
 /** «Состав работ»: карточки на тёмном фоне в стиле блока технических характеристик. */
-function Scope({ service }: { service: Service }) {
+function Scope({ service, title }: { service: Service; title: string }) {
   if (!service.scope.length) return null;
   return (
     <section aria-labelledby="scope-title" className="bg-navy-950 section-y-sm text-white">
       <div className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-20 gap-y-12">
         <Reveal>
           <h2 id="scope-title" className="m-0 heading-2-sm">
-            Состав работ
+            {title}
           </h2>
         </Reveal>
         <Reveal>
@@ -219,14 +220,14 @@ function Scope({ service }: { service: Service }) {
 const asItems = (list: { title: string; description?: string }[]) =>
   list.map((i) => ({ title: i.title, text: i.description ?? "" }));
 
-function Related({ service }: { service: Service }) {
+function Related({ service, title }: { service: Service; title: string }) {
   if (!service.projects.length) return null;
   return (
     <section aria-labelledby="related-title" className="bg-paper pb-[clamp(72px,9vw,130px)]">
       <div className="container-site flex flex-col gap-8">
         <div className="flex flex-wrap items-baseline justify-between gap-5 border-t border-navy-950 pt-6">
           <h2 id="related-title" className="m-0 text-[28px] font-semibold tracking-[-.02em] text-navy-950">
-            Проекты по направлению
+            {title}
           </h2>
           <Link href="/projects" className="font-medium no-underline">
             Все проекты →
@@ -266,6 +267,7 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
   if (!service) notFound();
   // У партнёрских услуг фото не обязательно: без обложки блок не показываем вовсе
   const showCover = Boolean(service.cover) || !service.is_partner;
+  const l = labelsOf(site);
 
   return (
     <>
@@ -280,11 +282,11 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
       >
         <div className="-mt-5 flex flex-wrap gap-3">
           <ButtonLink href="#form" variant="dark" size="md" className="h-14">
-            Рассчитать стоимость
+            {l.service_cta}
           </ButtonLink>
           {service.faq.length ? (
             <ButtonLink href="#faq" variant="outlineDark" size="md" arrow={null} className="h-14">
-              Вопросы
+              {l.service_faq_button}
             </ButtonLink>
           ) : null}
           {service.is_partner ? (
@@ -326,31 +328,27 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
       {service.description ? (
         <TextBlock
           id="about-service"
-          title="Об услуге"
+          title={l.service_about}
           paragraphs={service.description.split(/\n{2,}/).filter(Boolean)}
         />
       ) : null}
-      {service.is_partner ? <PartnerStudio partner={site.partner} /> : null}
-      <FeatureGrid
-        id="tasks"
-        tone="paper"
-        data={{ title: "Какие задачи решает", text: "", items: asItems(service.tasks) }}
-      />
+      {service.is_partner ? <PartnerStudio partner={site.partner} labels={l} /> : null}
+      <FeatureGrid id="tasks" tone="paper" data={{ title: l.service_tasks, text: "", items: asItems(service.tasks) }} />
       <Uses service={service} />
-      <Scope service={service} />
-      <Execution service={service} />
+      <Scope service={service} title={l.service_scope} />
+      <Execution service={service} title={l.service_execution} />
       <FeatureGrid
         id="limitations"
         tone="white"
-        data={{ title: "Особенности и ограничения", text: "", items: asItems(service.limitations) }}
+        data={{ title: l.service_limitations, text: "", items: asItems(service.limitations) }}
       />
-      <Specs service={service} />
-      <Related service={service} />
+      <Specs service={service} title={l.service_specs} />
+      <Related service={service} title={l.service_related} />
       {service.faq.length ? (
         <section id="faq" aria-labelledby="faq-title" className="scroll-mt-20 bg-white section-y-sm">
           <div className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-20 gap-y-12">
             <h2 id="faq-title" className="m-0 heading-2-sm text-navy-950">
-              Частые вопросы
+              {l.service_faq}
             </h2>
             <Accordion items={service.faq.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))} />
           </div>
@@ -360,7 +358,7 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
         id="form"
         title={service.cta_title || `Расчёт: ${service.title.toLowerCase()}`}
         text={service.cta_text}
-        label="Отправить документацию"
+        label={l.service_form_button}
         href={`/request?service=${service.slug}`}
       />
       <JsonLd data={serviceJsonLd(service, site.partner)} />

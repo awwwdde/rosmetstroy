@@ -208,6 +208,20 @@ export default function LeadPage() {
               Добавить комментарий
             </Button>
           </Card>
+          <Card title="Согласие на обработку ПД">
+            {lead.consent_at ? (
+              <p className="m-0 text-sm leading-normal text-navy-950">
+                Получено {dateTime.format(new Date(lead.consent_at))}
+                <span className="mt-1 block text-xs text-muted">{lead.consent_document}</span>
+              </p>
+            ) : (
+              <p className="m-0 text-sm text-muted">Заявка получена до введения отдельного согласия.</p>
+            )}
+            <p className="m-0 text-xs leading-normal text-muted">
+              Заявка удаляется автоматически через 3 года. Если клиент отзовёт согласие, удалите заявку вручную в
+              течение 30 дней.
+            </p>
+          </Card>
           <Card title="Технические данные">
             <dl className="m-0 grid grid-cols-[90px_1fr] gap-x-3 gap-y-1 text-xs text-muted">
               <dt>IP</dt>

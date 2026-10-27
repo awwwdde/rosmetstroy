@@ -17,6 +17,8 @@ class LeadCreate(Schema):
     service_label: str = Field(default="", max_length=255)
     description: str = Field(default="", max_length=5000)
     source_page: str = Field(default="", max_length=500)
+    # Отдельное согласие на обработку ПД — обязательная галочка в форме
+    consent: bool = False
 
     @field_validator("name", "company", "phone", "description", "service_label", mode="before")
     @classmethod
@@ -87,6 +89,8 @@ class LeadOut(LeadListItem):
     source_page: str
     ip: str
     user_agent: str
+    consent_at: datetime | None
+    consent_document: str
     updated_at: datetime
     files: list[LeadFileOut]
     comments: list[LeadCommentOut]

@@ -68,7 +68,15 @@ export type HomeSections = {
   directions: {
     title: string;
     text: string;
-    items: { title: string; text: string; image: string; image_alt: string; href: string }[];
+    items: {
+      title: string;
+      text: string;
+      image: string;
+      image_alt: string;
+      /** Какую часть фото держать в кадре: center | top | bottom | left | right */
+      image_position?: string;
+      href: string;
+    }[];
   };
   tasks: ItemsSection;
   projects: { title: string; link_label: string; link_href: string; empty_text?: string };
@@ -166,6 +174,19 @@ export type SiteSettings = {
   /** Подтверждённые показатели (значение + подпись); пустой список — блок скрыт */
   highlights?: { value: string; label: string }[];
   requisites?: KeyValue[];
+  /** Уведомление о cookie при первом визите */
+  cookies?: {
+    enabled: boolean;
+    text: string;
+    accept_label: string;
+    decline_label: string;
+    link_label: string;
+    link_href: string;
+  };
+  /** Свои подписи интерфейса (см. src/lib/labels.ts); пустые — по умолчанию */
+  labels?: Partial<Record<string, string>>;
+  /** Номер счётчика Яндекс Метрики; пусто — аналитика не подключается */
+  analytics?: { yandex_metrika_id: string };
   /** Партнёрская студия, которая оказывает IT-услуги; пустой url — ссылка не выводится */
   partner?: {
     name: string;

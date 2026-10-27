@@ -11,7 +11,13 @@ async def token(client: AsyncClient) -> str:
 
 
 async def post_lead(client: AsyncClient, files: list[tuple[str, tuple[str, bytes, str]]] | None = None, **fields: str):
-    data = {"name": "Иван", "phone": "+7 900 000-00-00", "description": "Лестница", "form_token": await token(client)}
+    data = {
+        "name": "Иван",
+        "phone": "+7 900 000-00-00",
+        "description": "Лестница",
+        "consent": "true",
+        "form_token": await token(client),
+    }
     data.update(fields)
     return await client.post("/api/v1/leads", data=data, files=files or [])
 
@@ -26,6 +32,9 @@ async def test_lead_is_saved_with_files_and_visible_in_admin(client: AsyncClient
 
     detail = (await admin.get(f"/api/v1/admin/leads/{lead['id']}")).json()
     assert detail["name"] == "Иван"
+    # Согласие на обработку ПД зафиксировано вместе с заявкой
+    assert detail["consent_at"]
+    assert "Согласие на обработку персональных данных" in detail["consent_document"]
     assert detail["status"] == "new"
     assert detail["files"][0]["original_name"] == "ТЗ.pdf"
 
@@ -93,3 +102,9 @@ async def test_lead_submission_is_rate_limited(client: AsyncClient) -> None:
     statuses = [(await post_lead(client)).status_code for _ in range(6)]
     assert statuses[:5] == [201] * 5
     assert statuses[5] == 429
+
+
+async def test_lead_requires_personal_data_consent(client: AsyncClient) -> None:
+    response = await post_lead(client, consent="false")
+    assert response.status_code == 422
+    assert "согласие" in response.text.lower()

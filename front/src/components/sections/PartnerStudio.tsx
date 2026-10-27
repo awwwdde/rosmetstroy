@@ -3,12 +3,13 @@ import { buttonClass } from "@/components/ui/ButtonLink";
 import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ExternalIcon, PartnerLink } from "@/components/ui/PartnerLink";
 import type { SiteSettings } from "@/types/content";
+import type { Labels } from "@/lib/labels";
 
 /**
  * «Работы выполняет студия …» — на страницах партнёрских услуг. Все сведения о студии
  * берутся из «Настроек сайта → Партнёрская IT-студия», чтобы их можно было обновить без разработчика.
  */
-export function PartnerStudio({ partner }: { partner: SiteSettings["partner"] }) {
+export function PartnerStudio({ partner, labels }: { partner: SiteSettings["partner"]; labels: Labels }) {
   if (!partner?.name || !partner.about) return null;
   const competencies = partner.competencies ?? [];
   const cases = partner.cases ?? [];
@@ -36,7 +37,9 @@ export function PartnerStudio({ partner }: { partner: SiteSettings["partner"] })
         <div className="flex flex-col gap-12">
           {competencies.length ? (
             <Reveal className="flex flex-col gap-5">
-              <h3 className="m-0 text-[22px] leading-tight font-semibold tracking-[-.01em]">Что делает студия</h3>
+              <h3 className="m-0 text-[22px] leading-tight font-semibold tracking-[-.01em]">
+                {labels.partner_competencies}
+              </h3>
               <InfoBlocks
                 tone="dark"
                 variant="title"
@@ -47,7 +50,7 @@ export function PartnerStudio({ partner }: { partner: SiteSettings["partner"] })
           ) : null}
           {cases.length ? (
             <Reveal className="flex flex-col gap-5">
-              <h3 className="m-0 text-[22px] leading-tight font-semibold tracking-[-.01em]">Среди проектов студии</h3>
+              <h3 className="m-0 text-[22px] leading-tight font-semibold tracking-[-.01em]">{labels.partner_cases}</h3>
               <InfoBlocks
                 tone="dark"
                 variant="title"

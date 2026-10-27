@@ -5,6 +5,7 @@ import { JsonLd } from "@/components/ui/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { getServices, getSiteSettings } from "@/services/content";
 
+import { CookieConsent } from "./CookieConsent";
 import { Footer } from "./Footer";
 import { Header, type MenuGroup } from "./Header";
 
@@ -50,6 +51,11 @@ async function SiteFooter() {
   );
 }
 
+async function SiteCookies() {
+  const site = await getSiteSettings();
+  return <CookieConsent cookies={site.cookies} metrikaId={site.analytics?.yandex_metrika_id} />;
+}
+
 function HeaderFallback() {
   return <div aria-hidden="true" className="fixed inset-x-0 top-0 z-50 h-[76px] bg-[rgba(7,29,54,.86)]" />;
 }
@@ -72,6 +78,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         <SiteFooter />
       </Suspense>
       <SmoothScroll />
+      <Suspense fallback={null}>
+        <SiteCookies />
+      </Suspense>
     </div>
   );
 }

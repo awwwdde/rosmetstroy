@@ -7,13 +7,14 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { ImageUrlField } from "./MediaPicker";
-import { Button, Field, Input, Textarea, Toggle, surface } from "./ui";
+import { Button, Field, Input, Select, Textarea, Toggle, surface } from "./ui";
 
 /** Описание поля шаблона секции. Шаблоны задают, что редактор может менять на странице. */
 export type FieldDef =
   | { key: string; label: string; type: "text" | "textarea" | "url" | "image" | "document" | "boolean"; hint?: string }
   | { key: string; label: string; type: "list"; fields: FieldDef[]; itemTitle?: string; max?: number }
-  | { key: string; label: string; type: "group"; fields: FieldDef[] };
+  | { key: string; label: string; type: "group"; fields: FieldDef[] }
+  | { key: string; label: string; type: "select"; options: { value: string; label: string }[]; hint?: string };
 
 type Json = Record<string, unknown>;
 
@@ -224,31 +225,51 @@ export function SchemaFields({
   const set = (key: string, v: unknown) => onChange({ ...value, [key]: v });
   return (
     <div className="flex flex-col gap-3">
-      {fields.map((def) => {
+      {fields.map((def, index) => {
         const current = value?.[def.key];
         switch (def.type) {
           case "text":
           case "url":
             return (
-              <Field key={def.key} label={def.label} hint={def.hint}>
+              <Field key={`${def.key}-${index}`} label={def.label} hint={def.hint}>
                 <Input value={String(current ?? "")} onChange={(e) => set(def.key, e.target.value)} />
               </Field>
             );
           case "textarea":
             return (
-              <Field key={def.key} label={def.label} hint={def.hint}>
+              <Field key={`${def.key}-${index}`} label={def.label} hint={def.hint}>
                 <Textarea rows={3} value={String(current ?? "")} onChange={(e) => set(def.key, e.target.value)} />
+              </Field>
+            );
+          case "select":
+            return (
+              <Field key={`${def.key}-${index}`} label={def.label} hint={def.hint}>
+                <Select
+                  value={String(current ?? def.options[0]?.value ?? "")}
+                  onChange={(e) => set(def.key, e.target.value)}
+                >
+                  {def.options.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </Select>
               </Field>
             );
           case "boolean":
             return (
-              <Toggle key={def.key} label={def.label} checked={Boolean(current)} onChange={(v) => set(def.key, v)} />
+              <Toggle
+                key={`${def.key}-${index}`}
+                label={def.label}
+                checked={Boolean(current)}
+                onChange={(v) => set(def.key, v)}
+              />
             );
           case "image":
           case "document":
             return (
               <ImageUrlField
-                key={def.key}
+                key={`${def.key}-${index}`}
                 kind={def.type}
                 label={def.label}
                 value={String(current ?? "")}
@@ -258,7 +279,7 @@ export function SchemaFields({
           case "list":
             return (
               <Repeater
-                key={def.key}
+                key={`${def.key}-${index}`}
                 label={def.label}
                 value={(current as Json[]) ?? []}
                 onChange={(v) => set(def.key, v)}
@@ -269,7 +290,10 @@ export function SchemaFields({
             );
           case "group":
             return (
-              <fieldset key={def.key} className="m-0 flex flex-col gap-3 rounded-[10px] border border-[#e3e9f0] p-3">
+              <fieldset
+                key={`${def.key}-${index}`}
+                className="m-0 flex flex-col gap-3 rounded-[10px] border border-[#e3e9f0] p-3"
+              >
                 <legend className="px-1 text-[13px] font-medium text-navy-950">{def.label}</legend>
                 <SchemaFields fields={def.fields} value={(current as Json) ?? {}} onChange={(v) => set(def.key, v)} />
               </fieldset>

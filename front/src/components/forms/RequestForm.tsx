@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
 import { ACCEPT_ATTR, MAX_FILE_MB, type RequestValues, requestSchema } from "@/features/leads/schema";
 import { cn, formatBytes } from "@/lib/utils";
+import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
 import type { RequestDirection } from "@/types/content";
 
 type Props = {
@@ -66,7 +67,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
     formState: { errors },
   } = useForm<RequestValues>({
     resolver: zodResolver(requestSchema),
-    defaultValues: { name: "", company: "", phone: "", email: "", description: "" },
+    defaultValues: { name: "", company: "", phone: "", email: "", description: "", consent: false },
   });
 
   const current = directions[direction];
@@ -96,6 +97,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
     errors.phone && !contactError && "проверьте номер телефона",
     errors.email && "проверьте e-mail",
     hasProblems && `уберите файлы больше ${MAX_FILE_MB} МБ или неподдерживаемого формата`,
+    errors.consent && "отметьте согласие на обработку персональных данных",
   ].filter(Boolean);
 
   const onDrop = (e: DragEvent<HTMLLabelElement>) => {
@@ -275,12 +277,9 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
             </fieldset>
 
             <div className="flex flex-wrap items-center justify-between gap-5 border-t border-mist pt-2">
-              <span className="max-w-[380px] text-[13px] leading-normal text-muted">
-                Отправляя заявку, вы соглашаетесь с{" "}
-                <Link href="/privacy" className="text-accent-dark">
-                  политикой обработки персональных данных
-                </Link>
-              </span>
+              <div className="max-w-[460px]">
+                <ConsentCheckbox registration={register("consent")} error={errors.consent?.message} />
+              </div>
               <button
                 type="submit"
                 className="flex h-[58px] cursor-pointer items-center gap-3.5 rounded-[4px] border-0 bg-navy-950 px-[30px] font-[inherit] text-base font-semibold text-white transition-colors duration-200 hover:bg-accent"

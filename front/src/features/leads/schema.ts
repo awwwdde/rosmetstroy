@@ -16,6 +16,9 @@ const phone = z
 
 const email = z.union([z.literal(""), z.email("Некорректный e-mail")]);
 
+// Отдельное согласие на обработку ПД (152-ФЗ, ст. 9): галочка не стоит по умолчанию
+const consent = z.boolean().refine((v) => v, "Без согласия на обработку персональных данных заявку отправить нельзя");
+
 export const requestSchema = z
   .object({
     name: z.string().trim().min(1, "Укажите имя").max(255),
@@ -23,6 +26,7 @@ export const requestSchema = z
     phone,
     email,
     description: z.string().trim().max(5000, "Не больше 5000 символов"),
+    consent,
   })
   .refine((v) => v.phone !== "" || v.email !== "", {
     message: "Оставьте телефон или почту",
@@ -35,6 +39,7 @@ export const quickSchema = z.object({
   name: z.string().trim().min(1, "Укажите имя").max(255),
   phone: phone.refine((v) => v !== "", "Укажите телефон"),
   description: z.string().trim().max(5000),
+  consent,
 });
 
 export type QuickValues = z.infer<typeof quickSchema>;

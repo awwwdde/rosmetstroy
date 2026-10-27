@@ -8,6 +8,7 @@ import { LightHero } from "@/components/sections/PageHero";
 import { buildMetadata } from "@/lib/seo";
 import { getPage, getServices, getSiteSettings } from "@/services/content";
 import type { RequestSections } from "@/types/content";
+import { labelsOf } from "@/lib/labels";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getPage<RequestSections>("request"), getSiteSettings()]);
@@ -48,7 +49,7 @@ async function RequestContent() {
           </Suspense>
           <aside className="flex flex-col justify-between gap-14 bg-navy-950 p-[clamp(24px,4vw,56px)] text-white">
             <div className="flex flex-col gap-8">
-              <span className="text-[13px] text-sky">Что произойдёт дальше</span>
+              <span className="text-[13px] text-sky">{labelsOf(site).request_next}</span>
               <ol className="m-0 flex list-none flex-col p-0">
                 {s.next_steps.map((step) => (
                   <li key={step.title} className="flex flex-col gap-1.5 border-t border-sky/18 py-[22px]">

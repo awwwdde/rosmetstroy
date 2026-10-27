@@ -47,3 +47,81 @@ async def test_indexnow_key_and_paths(client) -> None:  # type: ignore[no-untype
     assert any(p.startswith("/services/") for p in paths)
     # Вне production с https поисковики не уведомляются
     assert not indexnow.enabled()
+
+
+async def test_bootstrap_admin_from_env(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from sqlalchemy import func, select
+
+    from app.cli import bootstrap
+    from app.core.security import verify_password
+    from app.db.session import SessionLocal
+    from app.models import Role, User
+
+    async def get(email: str) -> User | None:
+        async with SessionLocal() as db:
+            return await db.scalar(select(User).where(func.lower(User.email) == email))
+
+    # В базе уже есть пользователи (администратор из фикстуры), а в окружении — новый e-mail
+    monkeypatch.setenv("ADMIN_EMAIL", "new-admin@example.com")
+    monkeypatch.setenv("ADMIN_PASSWORD", "first-password-123")
+    monkeypatch.delenv("ADMIN_RESET_PASSWORD", raising=False)
+    await bootstrap()
+    user = await get("new-admin@example.com")
+    assert user is not None
+    assert user.role == Role.admin
+    assert verify_password("first-password-123", user.password_hash)
+
+    # Повторный деплой с другим паролем не перезаписывает пароль, сменённый в админке
+    monkeypatch.setenv("ADMIN_PASSWORD", "second-password-456")
+    await bootstrap()
+    assert verify_password("first-password-123", (await get("new-admin@example.com")).password_hash)  # type: ignore[union-attr]
+
+    # Явный сброс пароля
+    monkeypatch.setenv("ADMIN_RESET_PASSWORD", "true")
+    await bootstrap()
+    assert verify_password("second-password-456", (await get("new-admin@example.com")).password_hash)  # type: ignore[union-attr]
+
+
+async def test_expired_leads_are_purged(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from datetime import UTC, datetime, timedelta
+
+    from sqlalchemy import select
+
+    from app.db.session import SessionLocal
+    from app.models import Lead
+    from app.services import retention
+
+    async with SessionLocal() as db:
+        old = Lead(name="Старая заявка", files=[], created_at=datetime.now(UTC) - timedelta(days=1200))
+        fresh = Lead(name="Свежая заявка", files=[])
+        db.add_all([old, fresh])
+        await db.commit()
+        old_id, fresh_id = old.id, fresh.id
+
+    monkeypatch.setattr(retention.settings, "lead_retention_days", 1095)
+    assert await retention.purge_expired_leads() >= 1
+
+    async with SessionLocal() as db:
+        ids = set(await db.scalars(select(Lead.id).where(Lead.id.in_([old_id, fresh_id]))))
+    assert ids == {fresh_id}
+
+
+def test_telegram_notification_has_no_personal_data() -> None:
+    from app.services.notifications import lead_short
+
+    text = lead_short(
+        {
+            "id": "7",
+            "number": "RMS-00007",
+            "name": "Иван Петров",
+            "phone": "+79001234567",
+            "email": "i@ex.ru",
+            "company": "ООО Ромашка",
+            "service": "Металлоконструкции",
+            "files": "2",
+            "description": "Лестница",
+        }
+    )
+    for secret in ("Иван", "+79001234567", "i@ex.ru", "Ромашка", "Лестница"):
+        assert secret not in text
+    assert "RMS-00007" in text

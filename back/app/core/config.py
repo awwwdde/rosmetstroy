@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     s3_public_url: str = ""
 
     # Лимиты загрузок
+    # Срок хранения заявок, дней (указан в согласии на обработку ПД); 0 — не удалять автоматически
+    lead_retention_days: int = 1095
     lead_max_files: int = 10
     lead_max_file_mb: int = 25
     media_max_file_mb: int = 15
