@@ -1,5 +1,6 @@
 "use client";
 
+import "@/features/admin/zod-config";
 import { Suspense } from "react";
 
 import { AuthProvider } from "@/features/admin/auth";

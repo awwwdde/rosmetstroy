@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { MotionProvider } from "@/components/animations/MotionProvider";
 import { SmoothScroll } from "@/components/animations/SmoothScroll";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
@@ -63,24 +64,26 @@ function HeaderFallback() {
 /** Общая оболочка публичного сайта: шапка, подвал, плавная прокрутка. */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-paper font-sans text-ink">
-      <a
-        href="#main"
-        className="sr-only z-[60] rounded-[4px] bg-accent px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        Перейти к содержанию
-      </a>
-      <Suspense fallback={<HeaderFallback />}>
-        <SiteHeader />
-      </Suspense>
-      <main id="main">{children}</main>
-      <Suspense fallback={<div className="h-[480px] bg-navy-950" />}>
-        <SiteFooter />
-      </Suspense>
-      <SmoothScroll />
-      <Suspense fallback={null}>
-        <SiteCookies />
-      </Suspense>
-    </div>
+    <MotionProvider>
+      <div className="min-h-dvh bg-paper font-sans text-ink">
+        <a
+          href="#main"
+          className="sr-only z-[60] rounded-[4px] bg-accent px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+        >
+          Перейти к содержанию
+        </a>
+        <Suspense fallback={<HeaderFallback />}>
+          <SiteHeader />
+        </Suspense>
+        <main id="main">{children}</main>
+        <Suspense fallback={<div className="h-[480px] bg-navy-950" />}>
+          <SiteFooter />
+        </Suspense>
+        <SmoothScroll />
+        <Suspense fallback={null}>
+          <SiteCookies />
+        </Suspense>
+      </div>
+    </MotionProvider>
   );
 }

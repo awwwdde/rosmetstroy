@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LayoutGroup, LazyMotion, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -23,6 +24,8 @@ type Props = {
   shownLabel: string;
   emptyText?: string;
 };
+
+const loadLayoutFeatures = () => import("@/components/animations/motion-features-layout").then((mod) => mod.default);
 
 export function ProjectsGallery({ projects, categories, allLabel, shownLabel, emptyText }: Props) {
   const [filter, setFilter] = useState("all");
@@ -88,54 +91,57 @@ export function ProjectsGallery({ projects, categories, allLabel, shownLabel, em
           <div className="text-[13px] text-muted uppercase" aria-live="polite">
             {shownLabel}: {pad2(visible.length)}
           </div>
-          <LayoutGroup>
-            <motion.div
-              layout={!reduceMotion}
-              className="grid grid-flow-dense auto-rows-[380px] grid-cols-1 gap-4 min-[900px]:auto-rows-[420px] min-[900px]:grid-cols-12"
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {visible.map((project) => (
-                  <motion.div
-                    key={project.id}
-                    layout={!reduceMotion}
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: reduceMotion ? 0 : 0.4, ease: [0.2, 0.7, 0.2, 1] }}
-                    className={cn("relative", SIZE_CLASS[project.layout_size] ?? SIZE_CLASS.s)}
-                  >
-                    <Link
-                      href={`/projects/${project.slug}`}
-                      className="group flex h-full flex-col gap-3.5 text-navy-950 no-underline hover:text-navy-950"
+          {/* Перестановка карточек при фильтре — layout-анимации, им нужен полный набор Motion */}
+          <LazyMotion features={loadLayoutFeatures} strict>
+            <LayoutGroup>
+              <m.div
+                layout={!reduceMotion}
+                className="grid grid-flow-dense auto-rows-[380px] grid-cols-1 gap-4 min-[900px]:auto-rows-[420px] min-[900px]:grid-cols-12"
+              >
+                <AnimatePresence initial={false} mode="popLayout">
+                  {visible.map((project) => (
+                    <m.div
+                      key={project.id}
+                      layout={!reduceMotion}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: reduceMotion ? 0 : 0.4, ease: [0.2, 0.7, 0.2, 1] }}
+                      className={cn("relative", SIZE_CLASS[project.layout_size] ?? SIZE_CLASS.s)}
                     >
-                      <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-[6px] bg-mist">
-                        <div className="absolute inset-0 transition-transform duration-[1100ms] ease-out-soft group-hover:scale-[1.04]">
-                          <MediaImage
-                            src={project.cover?.url}
-                            alt={project.cover?.alt || project.title}
-                            sizes={
-                              project.layout_size === "big" || project.layout_size === "wide"
-                                ? "(min-width: 900px) 66vw, 100vw"
-                                : "(min-width: 900px) 33vw, 100vw"
-                            }
-                          />
+                      <Link
+                        href={`/projects/${project.slug}`}
+                        className="group flex h-full flex-col gap-3.5 text-navy-950 no-underline hover:text-navy-950"
+                      >
+                        <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-[6px] bg-mist">
+                          <div className="absolute inset-0 transition-transform duration-[1100ms] ease-out-soft group-hover:scale-[1.04]">
+                            <MediaImage
+                              src={project.cover?.url}
+                              alt={project.cover?.alt || project.title}
+                              sizes={
+                                project.layout_size === "big" || project.layout_size === "wide"
+                                  ? "(min-width: 900px) 66vw, 100vw"
+                                  : "(min-width: 900px) 33vw, 100vw"
+                              }
+                            />
+                          </div>
+                          {project.category ? (
+                            <span className="pointer-events-none absolute top-3.5 left-3.5 rounded-[3px] bg-white px-2.5 py-1.5 text-[13px]">
+                              {project.category.label || project.category.title}
+                            </span>
+                          ) : null}
                         </div>
-                        {project.category ? (
-                          <span className="pointer-events-none absolute top-3.5 left-3.5 rounded-[3px] bg-white px-2.5 py-1.5 text-[13px]">
-                            {project.category.label || project.category.title}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xl font-semibold tracking-[-.01em]">{project.title}</span>
-                        <span className="text-sm text-muted">{project.works_summary}</span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </LayoutGroup>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xl font-semibold tracking-[-.01em]">{project.title}</span>
+                          <span className="text-sm text-muted">{project.works_summary}</span>
+                        </div>
+                      </Link>
+                    </m.div>
+                  ))}
+                </AnimatePresence>
+              </m.div>
+            </LayoutGroup>
+          </LazyMotion>
           {!visible.length ? (
             <p className="m-0 py-16 text-center text-muted">В этой категории пока нет проектов.</p>
           ) : null}

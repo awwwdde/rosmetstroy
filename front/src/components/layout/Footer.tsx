@@ -69,7 +69,7 @@ export function Footer({ site, services }: Props) {
             </Link>
           </Column>
         </div>
-        <div className="flex flex-wrap justify-between gap-4 border-t border-sky/12 pt-6 text-[13px] text-white/45">
+        <div className="flex flex-wrap justify-between gap-4 border-t border-sky/12 pt-6 text-[13px] text-white/55">
           <span>© {site.legal_name}</span>
           {site.socials.length ? (
             <span className="flex gap-4">
@@ -88,7 +88,7 @@ export function Footer({ site, services }: Props) {
                 {" "}
                 <PartnerLink
                   partner={site.partner}
-                  className="text-white/70 underline-offset-4 hover:text-white hover:underline"
+                  className="text-white/80 underline underline-offset-4 hover:text-white"
                 />
               </>
             ) : null}

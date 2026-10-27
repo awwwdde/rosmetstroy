@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import { useId, useState } from "react";
 
 import { Reveal } from "@/components/animations/Reveal";
@@ -89,7 +90,7 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
           {hasImages ? (
             <div className="relative min-h-[440px] overflow-hidden rounded-[6px] bg-navy-800">
               {steps.map((step, index) => (
-                <motion.div
+                <m.div
                   key={step.title}
                   className="absolute inset-0"
                   initial={false}
@@ -99,14 +100,14 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
                   aria-hidden={index !== active}
                 >
                   <MediaImage src={step.image} alt={step.image_alt} sizes="(min-width: 1100px) 640px, 100vw" />
-                </motion.div>
+                </m.div>
               ))}
             </div>
           ) : null}
 
           <div className="flex flex-col justify-between gap-10">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div
+              <m.div
                 key={active}
                 initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -127,7 +128,7 @@ export function ProductionRoute({ id = "production", title, text, steps, linkLab
                     items={current.specs.map((spec) => ({ key: spec.k, label: spec.k, value: spec.v }))}
                   />
                 ) : null}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
             {linkLabel && linkHref ? (
               <SmartLink

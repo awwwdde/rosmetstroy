@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
@@ -192,7 +193,7 @@ export function Header({
 
       <AnimatePresence initial={false}>
         {mega ? (
-          <motion.div
+          <m.div
             id={megaId}
             key="mega"
             initial={{ opacity: 0, height: 0 }}
@@ -225,13 +226,13 @@ export function Header({
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence>
         {mobile ? (
-          <motion.div
+          <m.div
             id={mobileId}
             key="mobile"
             initial={{ opacity: 0, y: -12 }}
@@ -268,7 +269,7 @@ export function Header({
             >
               {mobileCtaLabel}
             </Link>
-          </motion.div>
+          </m.div>
         ) : null}
       </AnimatePresence>
     </header>

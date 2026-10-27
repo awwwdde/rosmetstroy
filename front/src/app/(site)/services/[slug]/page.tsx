@@ -179,7 +179,7 @@ function Execution({ service, title }: { service: Service; title: string }) {
               {service.stages.map((stage) => (
                 <li
                   key={stage.title}
-                  className="flex min-h-[180px] flex-col justify-end gap-2 bg-paper px-[22px] py-7 shadow-[inset_0_2px_0_#087CFF]"
+                  className="flex min-h-[180px] flex-col justify-end gap-2 bg-paper px-[22px] py-7 shadow-[inset_0_2px_0_var(--color-accent)]"
                 >
                   <span className="text-[19px] font-semibold text-navy-950">{stage.title}</span>
                   <span className="text-sm leading-normal text-muted">{stage.description}</span>

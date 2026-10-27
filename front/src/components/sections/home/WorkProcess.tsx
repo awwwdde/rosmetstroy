@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useSpring } from "motion/react";
+import { useReducedMotion, useScroll, useSpring } from "motion/react";
+import * as m from "motion/react-m";
 import { useRef } from "react";
 
 import { Reveal } from "@/components/animations/Reveal";
@@ -33,7 +34,7 @@ export function WorkProcess({ data }: { data: HomeSections["process"] }) {
         <ol ref={listRef} className="relative m-0 flex list-none flex-col gap-4 p-0">
           {/* Направляющая: серая основа и акцентное заполнение */}
           <span aria-hidden="true" className="absolute top-5 bottom-5 left-[15px] w-0.5 bg-sky/16 sm:left-[19px]" />
-          <motion.span
+          <m.span
             aria-hidden="true"
             className="absolute top-5 bottom-5 left-[15px] w-0.5 origin-top bg-accent sm:left-[19px]"
             style={{ scaleY: reduceMotion ? 1 : progress }}

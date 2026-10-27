@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
@@ -53,7 +54,7 @@ export function CookieConsent({ cookies, metrikaId }: { cookies: SiteSettings["c
   return (
     <AnimatePresence>
       {visible && cookies ? (
-        <motion.div
+        <m.div
           role="region"
           aria-label="Уведомление о cookie-файлах"
           initial={{ opacity: 0, y: reduceMotion ? 0 : 24 }}
@@ -88,7 +89,7 @@ export function CookieConsent({ cookies, metrikaId }: { cookies: SiteSettings["c
               </button>
             ) : null}
           </div>
-        </motion.div>
+        </m.div>
       ) : null}
     </AnimatePresence>
   );

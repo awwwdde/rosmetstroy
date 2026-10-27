@@ -1,12 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
-import { ACCEPT_ATTR, type QuickValues, quickSchema } from "@/features/leads/schema";
+import { ACCEPT_ATTR, type QuickValues, quickResolver } from "@/features/leads/schema";
 import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
 import { cn, formatBytes } from "@/lib/utils";
 
@@ -26,7 +26,7 @@ export function QuickLeadForm({ successTitle }: Props) {
     reset,
     formState: { errors },
   } = useForm<QuickValues>({
-    resolver: zodResolver(quickSchema),
+    resolver: quickResolver,
     defaultValues: { name: "", phone: "", description: "", consent: false },
   });
 
@@ -43,7 +43,7 @@ export function QuickLeadForm({ successTitle }: Props) {
   return (
     <AnimatePresence mode="wait" initial={false}>
       {sent ? (
-        <motion.div
+        <m.div
           key="sent"
           initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -66,9 +66,9 @@ export function QuickLeadForm({ successTitle }: Props) {
           >
             Отправить ещё одну заявку
           </button>
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.form
+        <m.form
           key="form"
           noValidate
           onSubmit={onSubmit}
@@ -161,7 +161,7 @@ export function QuickLeadForm({ successTitle }: Props) {
           >
             {status === "loading" ? "Отправляем…" : "Отправить на расчёт →"}
           </button>
-        </motion.form>
+        </m.form>
       )}
     </AnimatePresence>
   );

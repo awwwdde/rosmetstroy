@@ -7,7 +7,7 @@
   --color-navy-950: #071d36;
   --color-navy-900: #0a2747;
   --color-navy-800: #103d70;
-  --color-accent: #087cff;
+  --color-accent: #076de0; /* было #087cff: белый текст на кнопках не проходил WCAG AA (3.9:1 → 4.9:1) */
   --color-accent-dark: #326fa7;
   --color-sky: #a9d4ff;
   --color-paper: #f5f8fb;
@@ -308,4 +308,21 @@ html.lenis body {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+/* Появление блоков при прокрутке (Reveal): скрыт только прозрачностью — остаётся в дереве доступности */
+[data-reveal] {
+  transition:
+    opacity 0.9s var(--ease-out-soft),
+    translate 0.9s var(--ease-out-soft);
+}
+
+[data-reveal="hidden"] {
+  opacity: 0;
+  translate: 0 28px;
+}
+
+[data-reveal="shown"] {
+  opacity: 1;
+  translate: 0 0;
 }

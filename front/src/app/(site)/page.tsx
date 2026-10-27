@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { HydrationBoundary } from "@/components/layout/HydrationBoundary";
 import { PageFallback } from "@/components/layout/PageFallback";
 import { AboutIntro } from "@/components/sections/AboutIntro";
 import { CtaSection } from "@/components/sections/CtaSection";
@@ -46,16 +47,24 @@ async function HomeContent() {
   return (
     <>
       <HomeHero data={s.hero} />
-      {shown(s.about) ? <AboutIntro data={s.about} /> : null}
-      <Highlights items={site.highlights} />
-      {shown(s.directions) ? <Directions data={s.directions} mainLabel={labelsOf(site).direction_main} /> : null}
-      {shown(s.tasks) ? <FeatureGrid id="tasks" data={s.tasks} tone="white" /> : null}
-      {shown(s.projects) ? <FeaturedProjects data={s.projects} projects={featured} /> : null}
-      {shown(s.process) ? <WorkProcess data={s.process} /> : null}
-      {shown(s.reasons) ? <Reasons data={s.reasons} /> : null}
-      {shown(s.it) ? <ItPartner data={s.it} partner={site.partner} /> : null}
-      {shown(s.faq) ? <HomeFaq data={s.faq} items={generalFaq} /> : null}
-      {shown(s.cta) ? <CtaSection data={s.cta} site={site} /> : null}
+      <HydrationBoundary>{shown(s.about) ? <AboutIntro data={s.about} /> : null}</HydrationBoundary>
+      <HydrationBoundary>
+        <Highlights items={site.highlights} />
+      </HydrationBoundary>
+      <HydrationBoundary>
+        {shown(s.directions) ? <Directions data={s.directions} mainLabel={labelsOf(site).direction_main} /> : null}
+      </HydrationBoundary>
+      <HydrationBoundary>
+        {shown(s.tasks) ? <FeatureGrid id="tasks" data={s.tasks} tone="white" /> : null}
+      </HydrationBoundary>
+      <HydrationBoundary>
+        {shown(s.projects) ? <FeaturedProjects data={s.projects} projects={featured} /> : null}
+      </HydrationBoundary>
+      <HydrationBoundary>{shown(s.process) ? <WorkProcess data={s.process} /> : null}</HydrationBoundary>
+      <HydrationBoundary>{shown(s.reasons) ? <Reasons data={s.reasons} /> : null}</HydrationBoundary>
+      <HydrationBoundary>{shown(s.it) ? <ItPartner data={s.it} partner={site.partner} /> : null}</HydrationBoundary>
+      <HydrationBoundary>{shown(s.faq) ? <HomeFaq data={s.faq} items={generalFaq} /> : null}</HydrationBoundary>
+      <HydrationBoundary>{shown(s.cta) ? <CtaSection data={s.cta} site={site} /> : null}</HydrationBoundary>
       <JsonLd
         data={webPageJsonLd({
           path: "/",

@@ -35,7 +35,9 @@ export function MediaImage({ src, alt, sizes, priority, className, objectPositio
       alt={alt}
       fill
       sizes={sizes}
-      priority={priority}
+      // Next 16: priority устарел; для LCP-изображения — высокий приоритет и загрузка без задержки
+      fetchPriority={priority ? "high" : undefined}
+      loading={priority ? "eager" : undefined}
       className={cn("object-cover", className)}
       style={objectPosition ? { objectPosition } : undefined}
     />

@@ -8,6 +8,8 @@ const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL;
 const nextConfig: NextConfig = {
   output: "standalone",
   cacheComponents: true,
+  // Метаданные в <head> для всех: маркер добавляет src/proxy.ts к каждому запросу страницы
+  htmlLimitedBots: /RmsBlockingMetadata/,
   partialPrefetching: true,
   poweredByHeader: false,
   images: {

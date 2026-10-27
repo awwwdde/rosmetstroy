@@ -1,14 +1,14 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { type DragEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
-import { ACCEPT_ATTR, MAX_FILE_MB, type RequestValues, requestSchema } from "@/features/leads/schema";
+import { ACCEPT_ATTR, MAX_FILE_MB, type RequestValues, requestResolver } from "@/features/leads/schema";
 import { cn, formatBytes } from "@/lib/utils";
 import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
 import type { RequestDirection } from "@/types/content";
@@ -66,7 +66,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
     getValues,
     formState: { errors },
   } = useForm<RequestValues>({
-    resolver: zodResolver(requestSchema),
+    resolver: requestResolver,
     defaultValues: { name: "", company: "", phone: "", email: "", description: "", consent: false },
   });
 
@@ -117,7 +117,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
     <div className="relative flex flex-col gap-9 bg-white p-[clamp(24px,4vw,56px)]">
       <AnimatePresence mode="wait" initial={false}>
         {status === "form" ? (
-          <motion.form key="form" {...fade} noValidate onSubmit={onFormSubmit} className="flex flex-col gap-9">
+          <m.form key="form" {...fade} noValidate onSubmit={onFormSubmit} className="flex flex-col gap-9">
             {tried && messages.length ? (
               <div
                 role="alert"
@@ -198,7 +198,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
               </div>
               <AnimatePresence initial={false}>
                 {current?.is_partner ? (
-                  <motion.span
+                  <m.span
                     key="partner"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -206,7 +206,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                     className="overflow-hidden text-[13px] leading-normal text-muted"
                   >
                     {partnerNote}
-                  </motion.span>
+                  </m.span>
                 ) : null}
               </AnimatePresence>
             </fieldset>
@@ -287,11 +287,11 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                 Отправить заявку →
               </button>
             </div>
-          </motion.form>
+          </m.form>
         ) : null}
 
         {status === "loading" ? (
-          <motion.div
+          <m.div
             key="loading"
             {...fade}
             aria-live="polite"
@@ -307,11 +307,11 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
               </span>
               <span className="text-[15px] text-muted">Не закрывайте страницу — это займёт несколько секунд.</span>
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
 
         {status === "success" ? (
-          <motion.div
+          <m.div
             key="success"
             {...fade}
             aria-live="polite"
@@ -347,11 +347,11 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                 Новая заявка
               </button>
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
 
         {status === "failed" ? (
-          <motion.div key="failed" {...fade} role="alert" className="flex min-h-[560px] flex-col justify-center gap-9">
+          <m.div key="failed" {...fade} role="alert" className="flex min-h-[560px] flex-col justify-center gap-9">
             <div className="flex size-16 items-center justify-center rounded-[4px] border border-danger text-[28px] text-danger">
               !
             </div>
@@ -384,7 +384,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                 {email}
               </a>
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
       </AnimatePresence>
     </div>
