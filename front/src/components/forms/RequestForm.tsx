@@ -4,13 +4,14 @@ import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type DragEvent, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
+import { useFileDrop, useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
 import { ACCEPT_ATTR, MAX_FILE_MB, type RequestValues, requestResolver } from "@/features/leads/schema";
 import { cn, formatBytes } from "@/lib/utils";
 import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
+import { PhoneInput } from "@/components/forms/PhoneInput";
 import type { RequestDirection } from "@/types/content";
 
 type Props = {
@@ -56,8 +57,8 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
   );
   const [direction, setDirection] = useState(preselected);
   const [tried, setTried] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
   const { files, add, remove, clear, hasProblems } = useLeadFiles();
+  const { dragOver, zone } = useFileDrop(add);
   const { status, setStatus, error, ticket, submit } = useLeadSubmit();
   const {
     register,
@@ -99,12 +100,6 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
     hasProblems && `уберите файлы больше ${MAX_FILE_MB} МБ или неподдерживаемого формата`,
     errors.consent && "отметьте согласие на обработку персональных данных",
   ].filter(Boolean);
-
-  const onDrop = (e: DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    setDragOver(false);
-    add(e.dataTransfer.files);
-  };
 
   const fade = {
     initial: { opacity: 0, y: reduceMotion ? 0 : 10 },
@@ -148,10 +143,8 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                   />
                 </Field>
                 <Field label="Телефон" error={errors.phone && !contactError ? errors.phone.message : undefined}>
-                  <input
-                    {...register("phone")}
-                    type="tel"
-                    autoComplete="tel"
+                  <PhoneInput
+                    registration={register("phone")}
                     placeholder="+7 ___ ___-__-__"
                     aria-invalid={!!errors.phone}
                     className={cn(inputClass, errors.phone ? "border-danger" : "border-line")}
@@ -222,12 +215,7 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                 />
               </Field>
               <label
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={onDrop}
+                {...zone}
                 className={cn(
                   "relative flex cursor-pointer flex-col items-start gap-3 rounded-[4px] border border-dashed bg-paper p-6 transition-colors duration-200 focus-within:border-accent hover:border-accent",
                   tried && hasProblems ? "border-danger" : dragOver ? "border-accent" : "border-[#9fb2c6]",
@@ -247,7 +235,9 @@ export function RequestForm({ directions, partnerNote, success, email }: Props) 
                 <span className="text-[13px] leading-normal text-muted">
                   PDF, DWG, DXF, JPG, PNG, ZIP — до {MAX_FILE_MB} МБ на файл
                 </span>
-                <span className="text-[13px] text-accent">Выбрать файлы →</span>
+                <span className="text-[13px] text-accent">
+                  {dragOver ? "Отпустите, чтобы прикрепить" : "Перетащите сюда или выберите файлы →"}
+                </span>
               </label>
               {files.length ? (
                 <ul className="m-0 flex list-none flex-col border-t border-line p-0">

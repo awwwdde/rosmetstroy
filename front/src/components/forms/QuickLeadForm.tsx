@@ -5,9 +5,10 @@ import * as m from "motion/react-m";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
-import { useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
+import { useFileDrop, useLeadFiles, useLeadSubmit } from "@/features/leads/hooks";
 import { ACCEPT_ATTR, type QuickValues, quickResolver } from "@/features/leads/schema";
 import { ConsentCheckbox } from "@/components/forms/ConsentCheckbox";
+import { PhoneInput } from "@/components/forms/PhoneInput";
 import { cn, formatBytes } from "@/lib/utils";
 
 const fieldClass =
@@ -19,6 +20,7 @@ type Props = { successTitle: string };
 export function QuickLeadForm({ successTitle }: Props) {
   const reduceMotion = useReducedMotion();
   const { files, add, remove, clear, hasProblems } = useLeadFiles();
+  const { dragOver, zone } = useFileDrop(add);
   const { status, setStatus, error, submit } = useLeadSubmit();
   const {
     register,
@@ -89,11 +91,9 @@ export function QuickLeadForm({ successTitle }: Props) {
             </label>
             <label className="flex flex-col gap-2 text-[13px] text-white/60">
               Телефон
-              <input
-                {...register("phone")}
-                type="tel"
-                autoComplete="tel"
-                placeholder="+7"
+              <PhoneInput
+                registration={register("phone")}
+                placeholder="+7 ___ ___-__-__"
                 aria-invalid={!!errors.phone}
                 className={cn(fieldClass, errors.phone && "border-danger")}
               />
@@ -109,8 +109,14 @@ export function QuickLeadForm({ successTitle }: Props) {
               className="resize-y rounded-[4px] border border-sky/25 bg-transparent px-4 py-3.5 text-base text-white transition-colors outline-none focus:border-accent"
             />
           </label>
-          <label className="flex cursor-pointer items-center justify-between gap-4 rounded-[4px] border border-dashed border-sky/35 p-4 text-sm text-white/75 transition-colors focus-within:border-accent hover:border-accent">
-            <span>Прикрепить чертежи или ТЗ</span>
+          <label
+            {...zone}
+            className={cn(
+              "flex cursor-pointer items-center justify-between gap-4 rounded-[4px] border border-dashed p-4 text-sm text-white/75 transition-colors focus-within:border-accent hover:border-accent",
+              dragOver ? "border-accent bg-accent/10" : "border-sky/35",
+            )}
+          >
+            <span>{dragOver ? "Отпустите, чтобы прикрепить" : "Прикрепить чертежи или ТЗ — можно перетащить"}</span>
             <span className="text-[13px] text-sky">PDF · DWG · DXF</span>
             <input
               type="file"

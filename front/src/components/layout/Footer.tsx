@@ -2,10 +2,18 @@ import Link from "next/link";
 
 import { SmartLink } from "@/components/ui/SmartLink";
 import { PartnerLink } from "@/components/ui/PartnerLink";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import type { LinkItem, SiteSettings } from "@/types/content";
 
 import { CookieSettingsButton } from "./CookieConsent";
 import { Logo } from "./Logo";
+
+/** obliq-agency.ru из https://obliq-agency.ru/ */
+const siteHost = (url: string) =>
+  url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/.*$/, "");
 
 type Props = { site: SiteSettings; services: LinkItem[] };
 
@@ -57,6 +65,7 @@ export function Footer({ site, services }: Props) {
               </a>
               <span className="text-[15px] text-white/60">{site.address}</span>
             </div>
+            <SocialLinks items={site.socials} className="mt-1" />
           </div>
           <Column title="Услуги" items={services} />
           <Column title="Компания" items={site.footer_company} />
@@ -71,15 +80,6 @@ export function Footer({ site, services }: Props) {
         </div>
         <div className="flex flex-wrap justify-between gap-4 border-t border-sky/12 pt-6 text-[13px] text-white/55">
           <span>© {site.legal_name}</span>
-          {site.socials.length ? (
-            <span className="flex gap-4">
-              {site.socials.map((s) => (
-                <SmartLink key={s.href} href={s.href} className="text-white/60 no-underline hover:text-white">
-                  {s.label}
-                </SmartLink>
-              ))}
-            </span>
-          ) : null}
           <CookieSettingsButton />
           <span>
             {site.footer_note}
@@ -89,7 +89,9 @@ export function Footer({ site, services }: Props) {
                 <PartnerLink
                   partner={site.partner}
                   className="text-white/80 underline underline-offset-4 hover:text-white"
-                />
+                >
+                  {siteHost(site.partner.url)}
+                </PartnerLink>
               </>
             ) : null}
           </span>

@@ -140,7 +140,20 @@ export function siteGraphJsonLd(site: SiteSettings, services: ServiceCard[]) {
     publisher: { "@id": ORG_ID },
   };
 
-  return { "@context": "https://schema.org", "@graph": [organization, website] };
+  // Главное меню — подсказка поисковикам для «быстрых ссылок» под сниппетом
+  const navigation = {
+    "@type": "ItemList",
+    "@id": `${SITE_URL}/#navigation`,
+    name: "Основные разделы сайта",
+    itemListElement: site.nav.map((item, index) => ({
+      "@type": "SiteNavigationElement",
+      position: index + 1,
+      name: item.label,
+      url: absoluteUrl(item.href),
+    })),
+  };
+
+  return { "@context": "https://schema.org", "@graph": [organization, website, navigation] };
 }
 
 type WebPageType = "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "FAQPage";

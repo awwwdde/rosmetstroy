@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { useUiStore } from "@/features/ui-store";
 import { cn } from "@/lib/utils";
 import type { LinkItem } from "@/types/content";
@@ -19,6 +20,7 @@ type Props = {
   logoUrl: string;
   phone: string;
   phoneHref: string;
+  socials: LinkItem[];
   email: string;
   nav: LinkItem[];
   groups: MenuGroup[];
@@ -39,6 +41,7 @@ export function Header({
   logoUrl,
   phone,
   phoneHref,
+  socials,
   email,
   nav,
   groups,
@@ -152,6 +155,7 @@ export function Header({
         </nav>
 
         <div className="flex items-center gap-4">
+          <SocialLinks items={socials} size="sm" className="hidden min-[1280px]:flex" />
           <a
             href={`tel:${phoneHref}`}
             className="hidden text-sm text-white/75 no-underline hover:text-white min-[1080px]:inline"
@@ -261,6 +265,7 @@ export function Header({
               <a href={`mailto:${email}`} className="text-sky no-underline">
                 {email}
               </a>
+              <SocialLinks items={socials} className="mt-3" />
             </div>
             <Link
               href="/request"

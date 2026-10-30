@@ -1,9 +1,8 @@
 import { Reveal } from "@/components/animations/Reveal";
-import { ButtonLink, buttonClass } from "@/components/ui/ButtonLink";
-import { ExternalIcon, PartnerLink } from "@/components/ui/PartnerLink";
-import type { HomeSections, SiteSettings } from "@/types/content";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import type { HomeSections } from "@/types/content";
 
-export function ItPartner({ data, partner }: { data: HomeSections["it"]; partner?: SiteSettings["partner"] }) {
+export function ItPartner({ data }: { data: HomeSections["it"] }) {
   return (
     <section id="it" aria-labelledby="it-title" className="scroll-mt-20 bg-ink py-[clamp(64px,8vw,110px)] text-white">
       <div className="container-site grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-x-20 gap-y-12">
@@ -23,10 +22,6 @@ export function ItPartner({ data, partner }: { data: HomeSections["it"]; partner
             <ButtonLink href={data.link_href} variant="outlineSky" size="sm">
               {data.link_label}
             </ButtonLink>
-            <PartnerLink partner={partner} className={buttonClass("accent", "sm")}>
-              Сайт студии {partner?.name}
-              <ExternalIcon />
-            </PartnerLink>
           </div>
         </Reveal>
         <Reveal className="rounded-[4px] border border-sky/18">

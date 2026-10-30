@@ -28,6 +28,7 @@ async function SiteHeader() {
       logoUrl={site.logo_url}
       phone={site.phone}
       phoneHref={site.phone_href}
+      socials={site.socials}
       email={site.email}
       nav={site.nav}
       groups={groups}

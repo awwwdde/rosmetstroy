@@ -5,23 +5,21 @@ import { Suspense } from "react";
 
 import { Reveal } from "@/components/animations/Reveal";
 import { PageFallback } from "@/components/layout/PageFallback";
-import { PartnerStudio } from "@/components/sections/PartnerStudio";
 import { BandCta } from "@/components/sections/BandCta";
 import { FeatureGrid } from "@/components/sections/FeatureGrid";
 import { LightHero } from "@/components/sections/PageHero";
 import { SectionIntro } from "@/components/sections/SectionIntro";
 import { TextBlock } from "@/components/sections/TextBlock";
 import { Accordion } from "@/components/ui/Accordion";
-import { ButtonLink, buttonClass } from "@/components/ui/ButtonLink";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { MediaImage } from "@/components/ui/MediaImage";
-import { ExternalIcon, PartnerLink } from "@/components/ui/PartnerLink";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { InfoBlocks } from "@/components/ui/InfoBlocks";
 import { ORG_ID, absoluteUrl, buildMetadata, webPageJsonLd } from "@/lib/seo";
 import { labelsOf } from "@/lib/labels";
 import { PLACEHOLDER_SLUG, getService, getSiteSettings, staticSlugs } from "@/services/content";
-import type { Service, SiteSettings } from "@/types/content";
+import type { Service } from "@/types/content";
 
 export function generateStaticParams() {
   return staticSlugs("services");
@@ -40,7 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/services/[slug]">
   });
 }
 
-function serviceJsonLd(service: Service, partner: SiteSettings["partner"]) {
+function serviceJsonLd(service: Service) {
   const faq = service.faq;
   const url = absoluteUrl(`/services/${service.slug}`);
   return {
@@ -55,11 +53,7 @@ function serviceJsonLd(service: Service, partner: SiteSettings["partner"]) {
         url,
         image: service.cover ? absoluteUrl(service.cover.url) : undefined,
         // Партнёрские услуги (IT) оказывает партнёрская студия, а не компания
-        provider: service.is_partner
-          ? partner?.url
-            ? { "@type": "Organization", name: partner.name, url: partner.url }
-            : undefined
-          : { "@id": ORG_ID },
+        provider: service.is_partner ? undefined : { "@id": ORG_ID },
         brand: service.is_partner ? undefined : { "@id": ORG_ID },
         areaServed: "RU",
         hasOfferCatalog: service.scope.length
@@ -289,12 +283,6 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
               {l.service_faq_button}
             </ButtonLink>
           ) : null}
-          {service.is_partner ? (
-            <PartnerLink partner={site.partner} className={buttonClass("outlineDark", "md", "h-14")}>
-              Сайт студии {site.partner?.name}
-              <ExternalIcon />
-            </PartnerLink>
-          ) : null}
         </div>
         {showCover ? (
           <div className="relative">
@@ -332,7 +320,6 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
           paragraphs={service.description.split(/\n{2,}/).filter(Boolean)}
         />
       ) : null}
-      {service.is_partner ? <PartnerStudio partner={site.partner} labels={l} /> : null}
       <FeatureGrid id="tasks" tone="paper" data={{ title: l.service_tasks, text: "", items: asItems(service.tasks) }} />
       <Uses service={service} />
       <Scope service={service} title={l.service_scope} />
@@ -361,7 +348,7 @@ async function ServiceContent({ params }: Pick<PageProps<"/services/[slug]">, "p
         label={l.service_form_button}
         href={`/request?service=${service.slug}`}
       />
-      <JsonLd data={serviceJsonLd(service, site.partner)} />
+      <JsonLd data={serviceJsonLd(service)} />
     </>
   );
 }

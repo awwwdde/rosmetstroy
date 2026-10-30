@@ -1,14 +1,4 @@
-import {
-  BadgeCheck,
-  Building2,
-  Cookie,
-  Handshake,
-  type LucideIcon,
-  Menu,
-  PanelBottom,
-  Search,
-  Type,
-} from "lucide-react";
+import { BadgeCheck, Building2, Cookie, type LucideIcon, Menu, PanelBottom, Search, Type } from "lucide-react";
 
 import type { FieldDef } from "@/components/admin/SchemaFields";
 import { DEFAULT_LABELS, LABEL_GROUPS, LABEL_NAMES } from "@/lib/labels";
@@ -136,58 +126,20 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
           { key: "href", label: "Файл (PDF) или ссылка", type: "document" },
         ],
       },
-      { key: "socials", label: "Социальные сети", type: "list", itemTitle: "label", fields: link },
-    ],
-  },
-  {
-    id: "partner",
-    title: "IT-студия",
-    icon: Handshake,
-    summary: "Партнёр по IT-направлению",
-    where: "Блок IT на главной, страница услуги «IT-решения» (блок о студии), подвал, разметка.",
-    preview: "/services/it-resheniya",
-    fields: [
+      {
+        key: "socials",
+        label: "Соцсети и мессенджеры — иконка подбирается по ссылке (Telegram, WhatsApp, MAX, ВКонтакте)",
+        type: "list",
+        itemTitle: "label",
+        fields: link,
+      },
       {
         key: "partner",
-        label: "Партнёрская студия",
+        label: "Разработчик сайта — ссылка в самом низу подвала",
         type: "group",
         fields: [
           { key: "name", label: "Название", type: "text" },
           { key: "url", label: "Сайт (https://…)", type: "text" },
-          { key: "about", label: "Описание студии", type: "textarea" },
-          {
-            key: "facts",
-            label: "Факты о студии",
-            type: "list",
-            itemTitle: "k",
-            max: 6,
-            fields: [
-              { key: "k", label: "Подпись", type: "text" },
-              { key: "v", label: "Значение", type: "text" },
-            ],
-          },
-          {
-            key: "competencies",
-            label: "Что делает студия",
-            type: "list",
-            itemTitle: "title",
-            max: 8,
-            fields: [
-              { key: "title", label: "Название", type: "text" },
-              { key: "text", label: "Описание", type: "textarea" },
-            ],
-          },
-          {
-            key: "cases",
-            label: "Проекты студии",
-            type: "list",
-            itemTitle: "title",
-            max: 8,
-            fields: [
-              { key: "title", label: "Название проекта", type: "text" },
-              { key: "text", label: "Что сделано, отрасль, город", type: "textarea" },
-            ],
-          },
         ],
       },
     ],

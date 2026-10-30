@@ -27,7 +27,55 @@ export function useLeadFiles() {
   return { files, add, remove, clear, hasProblems };
 }
 
-export type SubmitStatus = "form" | "loading" | "success" | "failed";
+const hasFiles = (e: DragEvent | React.DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
+
+/**
+ * Перетаскивание файлов на зону вложений. Пока форма на странице, файл, брошенный мимо зоны,
+ * не открывается браузером вместо сайта (иначе введённые данные пропадают).
+ */
+export function useFileDrop(add: (list: FileList | null) => void) {
+  const [dragOver, setDragOver] = useState(false);
+
+  useEffect(() => {
+    const guard = (e: DragEvent) => {
+      if (hasFiles(e)) e.preventDefault();
+    };
+    window.addEventListener("dragover", guard);
+    window.addEventListener("drop", guard);
+    return () => {
+      window.removeEventListener("dragover", guard);
+      window.removeEventListener("drop", guard);
+    };
+  }, []);
+
+  const zone = {
+    onDragEnter: (e: React.DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      setDragOver(true);
+    },
+    onDragOver: (e: React.DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      setDragOver(true);
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      // уход на вложенный элемент зоны — не уход из зоны
+      if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+      setDragOver(false);
+    },
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      add(e.dataTransfer.files);
+    },
+  };
+
+  return { dragOver, zone };
+}
+
+export type SubmitStatus ="form" | "loading" | "success" | "failed";
 
 /** Отправка заявки: токен антиспам-фильтра запрашивается при открытии формы. */
 export function useLeadSubmit() {

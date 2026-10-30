@@ -187,17 +187,8 @@ export type SiteSettings = {
   labels?: Partial<Record<string, string>>;
   /** Номер счётчика Яндекс Метрики; пусто — аналитика не подключается */
   analytics?: { yandex_metrika_id: string };
-  /** Партнёрская студия, которая оказывает IT-услуги; пустой url — ссылка не выводится */
-  partner?: {
-    name: string;
-    url: string;
-    /** Описание студии для страницы партнёрской услуги */
-    about?: string;
-    facts?: KeyValue[];
-    competencies?: TitleTextItem[];
-    /** Проекты студии: название и короткое описание */
-    cases?: TitleTextItem[];
-  };
+  /** Разработчик сайта: ссылка «Сайт разработан в партнёрстве с …» в подвале */
+  partner?: { name: string; url: string };
   seo: {
     default_title: string;
     title_template: string;

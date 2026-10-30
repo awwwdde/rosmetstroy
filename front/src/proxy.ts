@@ -20,6 +20,8 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/admin")) {
+    // В режиме разработки маркер не нужен и мешает проверке статической оболочки страниц
+    if (process.env.NODE_ENV !== "production") return NextResponse.next();
     const headers = new Headers(request.headers);
     headers.set("user-agent", `${request.headers.get("user-agent") ?? ""} ${BLOCKING_METADATA_MARKER}`);
     return NextResponse.next({ request: { headers } });

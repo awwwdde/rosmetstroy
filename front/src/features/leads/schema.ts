@@ -28,6 +28,28 @@ export type QuickValues = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Поле телефона начинается с этого префикса; одинокий префикс считается пустым полем */
+export const PHONE_PREFIX = "+7 ";
+
+/**
+ * Российский номер в виде «+7 999 123-45-67» по мере ввода. Вставленные «8 999…» и «7999…»
+ * приводятся к тому же виду; номер с другим кодом страны («+375…») остаётся как введён.
+ */
+export function formatPhone(raw: string): string {
+  const value = raw.trimStart();
+  if (/^\+[0-689]/.test(value)) return value;
+  let digits = value.replace(/\D/g, "");
+  if (value.startsWith("+7") || (digits.length >= 11 && /^[78]/.test(digits))) digits = digits.slice(1);
+  // после «+7» по привычке набрали «8 916…»: лишняя первая 8 (или 7) — не часть номера
+  if (digits.length > 10 && /^[78]/.test(digits)) digits = digits.slice(1);
+  digits = digits.slice(0, 10);
+  let out = PHONE_PREFIX + digits.slice(0, 3);
+  if (digits.length > 3) out += ` ${digits.slice(3, 6)}`;
+  if (digits.length > 6) out += `-${digits.slice(6, 8)}`;
+  if (digits.length > 8) out += `-${digits.slice(8, 10)}`;
+  return out;
+}
+
 function phoneProblem(value: string): string | null {
   if (value === "") return null;
   const digits = value.replace(/\D/g, "").length;
@@ -41,7 +63,12 @@ const CONSENT_REQUIRED = "Без согласия на обработку пер
 function makeResolver<T extends FieldValues>(check: (values: T) => Partial<Record<keyof T, string>>): Resolver<T> {
   return (raw) => {
     const values = Object.fromEntries(
-      Object.entries(raw).map(([k, v]) => [k, typeof v === "string" ? v.trim() : v]),
+      Object.entries(raw).map(([k, v]) => {
+        if (typeof v !== "string") return [k, v];
+        const value = v.trim();
+        // в поле телефона остался только префикс «+7» — номер не введён
+        return [k, k === "phone" && value === PHONE_PREFIX.trim() ? "" : value];
+      }),
     ) as T;
     const problems = check(values);
     const keys = Object.keys(problems) as (keyof T)[];
