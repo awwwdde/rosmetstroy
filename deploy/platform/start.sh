@@ -7,11 +7,24 @@ set -euo pipefail
 : "${DATABASE_URL:?Не задан DATABASE_URL}"
 : "${SECRET_KEY:?Не задан SECRET_KEY}"
 
-SITE="${PUBLIC_SITE_URL:-${SITE_URL:-http://localhost:8080}}"
+# Основной домен — на него указывают canonical, sitemap, Host в robots.txt и ссылки в уведомлениях.
+# Адрес платформы <slug>.awwwdde.art остаётся рабочим и разрешён в CORS. MAIN_SITE_URL в .env стенда
+# переопределяет домен; без PUBLIC_SITE_URL (локальная проверка образа) используется localhost.
+PLATFORM_URL="${PUBLIC_SITE_URL:-}"
+PLATFORM_URL="${PLATFORM_URL%/}"
+if [[ -n "$PLATFORM_URL" ]]; then
+  SITE="${MAIN_SITE_URL:-https://rosmetstroy.ru}"
+else
+  SITE="${SITE_URL:-http://localhost:8080}"
+fi
 SITE="${SITE%/}"
 export PUBLIC_SITE_URL="$SITE"
-export SITE_URL="${SITE_URL:-$SITE}"
-export CORS_ORIGINS="${CORS_ORIGINS:-$SITE}"
+export SITE_URL="$SITE"
+if [[ -n "$PLATFORM_URL" && "$PLATFORM_URL" != "$SITE" ]]; then
+  export CORS_ORIGINS="${CORS_ORIGINS:-$SITE,$PLATFORM_URL}"
+else
+  export CORS_ORIGINS="${CORS_ORIGINS:-$SITE}"
+fi
 if [[ "$SITE" == https://* ]]; then
   export COOKIE_SECURE="${COOKIE_SECURE:-true}"
 else

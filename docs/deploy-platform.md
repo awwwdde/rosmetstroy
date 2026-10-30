@@ -53,9 +53,12 @@
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | уведомления о заявках в Telegram |
 | `LEAD_RETENTION_DAYS` | срок хранения заявок в днях, по умолчанию 1095 (3 года, как в согласии на обработку ПД); `0` — не удалять |
 | `STORAGE_BACKEND=s3` + `S3_*` | хранить файлы в S3 вместо PostgreSQL (см. ниже) |
-| `PUBLIC_SITE_URL` | свой домен вместо `<slug>.awwwdde.art` — для канонических ссылок и sitemap |
+| `MAIN_SITE_URL` | основной домен для canonical, sitemap и `Host` в robots.txt; по умолчанию `https://rosmetstroy.ru` |
 
-Выводятся сами и обычно не задаются: `SITE_URL`, `CORS_ORIGINS` (= `PUBLIC_SITE_URL`),
+Основной домен зашит в `deploy/platform/start.sh`: `PUBLIC_SITE_URL` платформы (`<slug>.awwwdde.art`)
+заменяется на `MAIN_SITE_URL`, а адрес платформы остаётся рабочим и добавляется в `CORS_ORIGINS`.
+
+Выводятся сами и обычно не задаются: `SITE_URL`, `CORS_ORIGINS` (основной домен + адрес платформы),
 `COOKIE_SECURE` (true для https), `REVALIDATE_SECRET` (HMAC от `SECRET_KEY`).
 
 ## Файлы
