@@ -23,6 +23,14 @@
 		-Server
 	}
 
+	# Адрес платформы (<slug>.awwwdde.art) → 301 на основной домен, чтобы поисковики склеили
+	# зеркала. /healthz не перенаправляется: по нему платформа проверяет контейнер.
+	@platform_host {
+		host {$REDIRECT_FROM_HOST}
+		not path /healthz
+	}
+	redir @platform_host {$PUBLIC_SITE_URL}{uri} permanent
+
 	# Хук инвалидации кэша вызывается backend-ом напрямую на 127.0.0.1:3000, снаружи закрыт
 	handle /api/revalidate {
 		respond 404

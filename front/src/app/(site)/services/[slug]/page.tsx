@@ -33,7 +33,6 @@ export async function generateMetadata({ params }: PageProps<"/services/[slug]">
     path: `/services/${service.slug}`,
     title: service.seo_title || service.title,
     description: service.seo_description || service.summary,
-    image: service.cover?.url,
     modifiedTime: service.updated_at,
   });
 }

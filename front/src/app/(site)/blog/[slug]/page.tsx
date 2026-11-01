@@ -24,7 +24,6 @@ export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): P
     path: `/blog/${article.slug}`,
     title: article.seo_title || article.title,
     description: article.seo_description || article.excerpt,
-    image: article.cover?.url,
     type: "article",
     publishedTime: article.published_at,
     modifiedTime: article.updated_at,

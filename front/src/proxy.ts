@@ -43,6 +43,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   // Всё, кроме статики, API, медиа и служебных файлов
   matcher: [
-    "/((?!_next/|api/|media/|images/|brand/|favicon\\.ico|icon|apple-icon|manifest|robots\\.txt|sitemap\\.xml|llms|indexnow-key\\.txt|healthz).*)",
+    "/((?!_next/|api/|media/|images/|brand/|favicon\\.ico|icon|apple-icon|manifest|robots\\.txt|sitemap\\.xml|llms|indexnow-key\\.txt|healthz|og$).*)",
   ],
 };

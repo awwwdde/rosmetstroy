@@ -16,7 +16,7 @@ CUSTOM_TEMPLATE = "custom"
 RESERVED_SLUGS = {
     "home", "about", "metalwork", "production", "services", "projects", "blog", "faq", "contacts", "request",
     "privacy", "consent", "not-found", "admin", "api", "media", "images", "brand", "sitemap", "robots", "manifest",
-    "healthz", "llms", "indexnow-key",
+    "healthz", "llms", "indexnow-key", "og",
 }  # fmt: skip
 
 

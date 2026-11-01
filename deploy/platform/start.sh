@@ -22,8 +22,12 @@ export PUBLIC_SITE_URL="$SITE"
 export SITE_URL="$SITE"
 if [[ -n "$PLATFORM_URL" && "$PLATFORM_URL" != "$SITE" ]]; then
   export CORS_ORIGINS="${CORS_ORIGINS:-$SITE,$PLATFORM_URL}"
+  # Caddy отвечает 301 на основной домен всем запросам на адрес платформы
+  REDIRECT_FROM_HOST="${PLATFORM_URL#*://}"
+  export REDIRECT_FROM_HOST="${REDIRECT_FROM_HOST%%/*}"
 else
   export CORS_ORIGINS="${CORS_ORIGINS:-$SITE}"
+  export REDIRECT_FROM_HOST="redirect.invalid"
 fi
 if [[ "$SITE" == https://* ]]; then
   export COOKIE_SECURE="${COOKIE_SECURE:-true}"

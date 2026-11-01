@@ -36,10 +36,35 @@ type SeoInput = {
   absoluteTitle?: boolean;
 };
 
+// Подпись над заголовком на баннере /og — по разделу сайта
+const OG_SECTIONS: [prefix: string, label: string][] = [
+  ["/services", "Услуги"],
+  ["/projects", "Проекты"],
+  ["/blog", "Блог"],
+  ["/metalwork", "Работа с металлом"],
+  ["/faq", "Вопросы и ответы"],
+  ["/contacts", "Контакты"],
+  ["/about", "О компании"],
+];
+
+/**
+ * Картинка для соцсетей: своя картинка страницы из CMS, на главной — общий баннер сайта,
+ * на остальных — фирменный баннер /og с заголовком страницы.
+ */
+function socialImage(site: SiteSettings | null, input: SeoInput): string | undefined {
+  if (input.image) return input.image;
+  if (input.path === "/") return site?.seo.og_image_url || undefined;
+  const section = OG_SECTIONS.find(([prefix]) => input.path.startsWith(prefix))?.[1];
+  const query = new URLSearchParams({ title: input.title, ...(section && section !== input.title ? { section } : {}) });
+  return `/og?${query}`;
+}
+
 export function buildMetadata(site: SiteSettings | null, input: SeoInput): Metadata {
   const description = input.description || site?.seo.default_description || "";
-  const image = input.image || site?.seo.og_image_url;
-  const images = image ? [{ url: absoluteUrl(image), ...OG_IMAGE_SIZE, alt: input.title }] : undefined;
+  const image = socialImage(site, input);
+  const images = image
+    ? [{ url: absoluteUrl(image), ...OG_IMAGE_SIZE, alt: `${input.title} — ${site?.company_name ?? "Росметстрой"}` }]
+    : undefined;
   const seo = site?.seo;
   return {
     title: input.absoluteTitle ? { absolute: input.title } : input.title,
