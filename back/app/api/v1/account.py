@@ -101,9 +101,12 @@ async def _username_or_empty() -> str:
 
 @router.get("/telegram", response_model=TelegramStatus)
 async def telegram_status(user: CurrentUser) -> TelegramStatus:
+    online, error = telegram.bot_health()
     return TelegramStatus(
         enabled=telegram.enabled(),
         bot_username=await _username_or_empty(),
+        bot_online=telegram.enabled() and online,
+        bot_error=error if user.role == "admin" else "",
         linked=user.telegram_linked,
         username=user.telegram_username,
         linked_at=user.telegram_linked_at,

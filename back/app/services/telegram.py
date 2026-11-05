@@ -26,13 +26,13 @@ from urllib.parse import quote, urlencode
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
-from sqlalchemy import event, select, text
+from sqlalchemy import event, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.rate_limit import limiter
 from app.core.security import hash_token
-from app.db.session import SessionLocal, engine
+from app.db.session import SessionLocal
 from app.models import AuditLog, Lead, Role, User
 
 log = logging.getLogger(__name__)
@@ -44,7 +44,6 @@ API = "https://api.telegram.org"
 LINK_TTL = timedelta(minutes=15)
 LOGIN_MAX_AGE = 300  # секунд: подпись Telegram Login свежая — нажатие кнопки только что
 POLL_TIMEOUT = 50
-ADVISORY_LOCK_KEY = 7_405_001  # один опрашивающий процесс на базу (getUpdates не терпит параллельных)
 
 # Действия журнала, о которых не уведомляем: служебные и слишком частые
 SILENT_ACTIONS = {"login", "logout", "download", "profile", "avatar", "telegram_link", "telegram_unlink"}
@@ -586,19 +585,42 @@ async def handle_update(update: dict[str, Any]) -> None:
         )
 
 
+# Состояние опроса — для карточки Telegram в настройках учётной записи
+_state: dict[str, Any] = {"last_ok": 0.0, "error": ""}
+
+
+def bot_health() -> tuple[bool, str]:
+    """(бот получает сообщения, последняя ошибка). Опрос отвечает не реже раза в POLL_TIMEOUT секунд."""
+    online = time.monotonic() - float(_state["last_ok"]) < POLL_TIMEOUT + 30
+    return online, str(_state["error"])
+
+
+def _explain(exc: TelegramError) -> str:
+    if exc.code == 409:
+        return "Этого бота уже опрашивает другой процесс с тем же токеном (например, локальный backend)"
+    if exc.code == 401:
+        return "Telegram не принял токен: проверьте TELEGRAM_BOT_TOKEN"
+    if exc.code == 0:
+        return f"Нет связи с api.telegram.org ({exc.description})"
+    return str(exc)
+
+
 async def _poll_forever() -> None:
     # Если когда-то был задан webhook, getUpdates с ним не работает
     await call("deleteWebhook", drop_pending_updates=False)
     await bot_username()
+    _state.update(last_ok=time.monotonic(), error="")
     log.info("Telegram-бот @%s запущен (long polling)", _bot_username)
     offset = 0
     while True:
         try:
             updates = await call("getUpdates", offset=offset, timeout=POLL_TIMEOUT, allowed_updates=["message"])
         except TelegramError as exc:
-            log.warning("Telegram: getUpdates — %s", exc)
+            _state["error"] = _explain(exc)
+            log.warning("Telegram: getUpdates — %s", _state["error"])
             await asyncio.sleep(5)
             continue
+        _state.update(last_ok=time.monotonic(), error="")
         for update in updates:
             offset = max(offset, int(update["update_id"]) + 1)
             try:
@@ -608,21 +630,20 @@ async def _poll_forever() -> None:
 
 
 async def bot_loop() -> None:
-    """Опрос Telegram. Advisory lock гарантирует один опрашивающий процесс на базу данных."""
+    """Опрос Telegram. Блокировки не нужны: два процесса с одним токеном Telegram сам не пускает
+    (ошибка 409) — это видно в состоянии бота и в логах."""
     while True:
         try:
-            async with engine.connect() as conn:
-                got = await conn.scalar(text("SELECT pg_try_advisory_lock(:k)"), {"k": ADVISORY_LOCK_KEY})
-                if got:
-                    try:
-                        await _poll_forever()
-                    finally:
-                        await conn.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": ADVISORY_LOCK_KEY})
+            await _poll_forever()
         except asyncio.CancelledError:
             raise
-        except Exception:
-            log.exception("Telegram-бот остановился, перезапуск через 30 с")
-        await asyncio.sleep(30)
+        except TelegramError as exc:
+            _state["error"] = _explain(exc)
+            log.warning("Telegram-бот не запустился: %s. Повтор через 15 с", _state["error"])
+        except Exception as exc:
+            _state["error"] = f"Внутренняя ошибка: {type(exc).__name__}"
+            log.exception("Telegram-бот остановился, перезапуск через 15 с")
+        await asyncio.sleep(15)
 
 
 # ---------- Вход по кнопке «Войти в панель» ----------

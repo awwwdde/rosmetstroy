@@ -25,6 +25,8 @@ type PasswordValues = z.infer<typeof passwordSchema>;
 type TelegramStatus = {
   enabled: boolean;
   bot_username: string;
+  bot_online: boolean;
+  bot_error: string;
   linked: boolean;
   username: string;
   linked_at: string | null;
@@ -198,6 +200,12 @@ function TelegramCard({ onLinked }: { onLinked: () => Promise<void> }) {
       description="Новые заявки и действия других пользователей в панели — в личный чат с ботом"
       actions={status?.linked ? <Badge className="bg-[#e8f7ee] text-[#137a3f]">Подключено</Badge> : null}
     >
+      {status?.enabled && !status.bot_online ? (
+        <div className="rounded-[8px] border border-danger-line bg-danger-bg px-3 py-2.5 text-[13px] text-danger">
+          <b>Бот на сервере сейчас не получает сообщения</b> — «Старт» и привязка не сработают.
+          {status.bot_error ? <div className="mt-1">{status.bot_error}</div> : null}
+        </div>
+      ) : null}
       {!status ? (
         <p className="m-0 text-sm text-muted">Загрузка…</p>
       ) : !status.enabled ? (

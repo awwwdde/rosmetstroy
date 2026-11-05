@@ -34,6 +34,10 @@ class TelegramStatus(Schema):
     # Бот настроен на сервере (TELEGRAM_BOT_TOKEN)
     enabled: bool
     bot_username: str
+    # Бот на сервере сейчас получает сообщения из Telegram
+    bot_online: bool
+    # Почему не получает — только для администраторов
+    bot_error: str
     linked: bool
     username: str
     linked_at: datetime | None
