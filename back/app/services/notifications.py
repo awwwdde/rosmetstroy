@@ -4,9 +4,9 @@ import logging
 from email.message import EmailMessage
 
 import aiosmtplib
-import httpx
 
 from app.core.config import settings
+from app.services import telegram
 
 log = logging.getLogger(__name__)
 
@@ -50,10 +50,8 @@ async def send_email(subject: str, body: str) -> None:
 async def send_telegram(text: str) -> None:
     if not (settings.telegram_bot_token and settings.telegram_chat_id):
         return
-    url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
-    async with httpx.AsyncClient(timeout=15) as client:
-        resp = await client.post(url, json={"chat_id": settings.telegram_chat_id, "text": text})
-        resp.raise_for_status()
+    # Через общий клиент бота: его ошибки не содержат адреса с токеном (в отличие от raise_for_status)
+    await telegram.call("sendMessage", chat_id=settings.telegram_chat_id, text=text)
 
 
 def lead_short(data: dict[str, str]) -> str:
@@ -80,3 +78,8 @@ async def notify_new_lead(data: dict[str, str]) -> None:
         await send_telegram(lead_short(data))
     except Exception:
         log.exception("Не удалось отправить сообщение в Telegram по заявке %s", data["number"])
+    # Личные уведомления в чаты, привязанные к учётным записям панели
+    try:
+        await telegram.notify_lead(int(data["id"]))
+    except Exception:
+        log.exception("Не удалось отправить уведомления бота по заявке %s", data["number"])

@@ -2445,6 +2445,14 @@ export interface components {
        * Format: date-time
        */
       created_at: string;
+      /** Avatar Url */
+      avatar_url: string;
+      /** Telegram Linked */
+      telegram_linked: boolean;
+      /** Telegram Username */
+      telegram_username: string;
+      /** Telegram Linked At */
+      telegram_linked_at: string | null;
     };
     /** UserUpdate */
     UserUpdate: {

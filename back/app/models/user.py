@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -22,6 +22,22 @@ class User(TimestampMixin, Base):
     role: Mapped[str] = mapped_column(String(20), default=Role.editor)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    # Профиль: аватар — квадратная WebP в публичном хранилище
+    avatar_key: Mapped[str] = mapped_column(String(512), default="")
+    avatar_url: Mapped[str] = mapped_column(String(1024), default="")
+
+    # Telegram: у каждой учётной записи свой чат с ботом. В личном чате chat_id совпадает с id пользователя
+    telegram_id: Mapped[int | None] = mapped_column(BigInteger, unique=True)
+    telegram_username: Mapped[str] = mapped_column(String(64), default="")
+    telegram_linked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Одноразовый код привязки из ссылки t.me/<бот>?start=<код>; хранится только хеш
+    telegram_link_hash: Mapped[str] = mapped_column(String(64), default="", index=True)
+    telegram_link_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    @property
+    def telegram_linked(self) -> bool:
+        return self.telegram_id is not None
 
 
 class AdminSession(Base):

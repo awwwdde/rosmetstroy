@@ -10,6 +10,7 @@ from app.core.rate_limit import client_ip
 from app.core.security import hash_token, tokens_equal
 from app.db.session import get_db
 from app.models import AdminSession, AuditLog, Role, User
+from app.services.telegram import queue_activity
 
 DB = Annotated[AsyncSession, Depends(get_db)]
 
@@ -23,6 +24,15 @@ async def get_admin_session(request: Request, db: DB) -> AdminSession:
     session = await db.scalar(select(AdminSession).where(AdminSession.token_hash == hash_token(token)))
     if session is None or session.expires_at < datetime.now(UTC) or not session.user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Сессия истекла")
+    # Cookie сессии одна на весь браузер. Если в соседней вкладке вошли под другой учётной записью,
+    # вкладка присылает id пользователя, под которым она открыта, — и не действует от чужого имени
+    expected = request.headers.get("x-admin-user", "")
+    if expected and expected != str(session.user_id):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "В этом браузере выполнен вход под другой учётной записью. Страница будет обновлена.",
+            headers={"X-Admin-User-Changed": "1"},
+        )
     if request.method not in SAFE_METHODS:
         header = request.headers.get("x-csrf-token", "")
         if not header or not tokens_equal(header, session.csrf_token):
@@ -88,3 +98,4 @@ async def audit(
             ip=client_ip(request),
         )
     )
+    queue_activity(db, user, action, entity, entity_id, meta)

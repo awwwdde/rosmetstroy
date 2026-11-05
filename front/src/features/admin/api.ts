@@ -52,6 +52,38 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
   onUnauthorized = handler;
 }
 
+/**
+ * Cookie сессии одна на весь браузер: если в соседней вкладке войти под другой учётной записью,
+ * эта вкладка иначе продолжила бы работать уже от чужого имени. Поэтому каждая вкладка сообщает,
+ * под кем она открыта (X-Admin-User), и backend отклоняет запрос при несовпадении — вкладка
+ * перезагружается и показывает актуальную учётную запись.
+ */
+let expectedUserId: number | null = null;
+export function setExpectedUser(id: number | null) {
+  expectedUserId = id;
+}
+
+const AUTH_CHANNEL = "rms-admin-auth";
+/** Сообщить другим вкладкам, что вход/выход изменился */
+export function broadcastAuthChange() {
+  try {
+    const channel = new BroadcastChannel(AUTH_CHANNEL);
+    channel.postMessage("changed");
+    channel.close();
+  } catch {
+    // BroadcastChannel недоступен — вкладки проверят сессию при возврате фокуса
+  }
+}
+export function onAuthChange(listener: () => void): () => void {
+  try {
+    const channel = new BroadcastChannel(AUTH_CHANNEL);
+    channel.onmessage = listener;
+    return () => channel.close();
+  } catch {
+    return () => undefined;
+  }
+}
+
 export async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   let payload: BodyInit | undefined;
@@ -62,6 +94,9 @@ export async function request<T>(method: string, path: string, body?: unknown): 
     payload = JSON.stringify(body);
   }
   if (method !== "GET") headers["X-CSRF-Token"] = csrfToken();
+  if (expectedUserId !== null && !path.startsWith("/auth/me") && !path.startsWith("/auth/login")) {
+    headers["X-Admin-User"] = String(expectedUserId);
+  }
 
   let response: Response;
   try {
@@ -76,6 +111,10 @@ export async function request<T>(method: string, path: string, body?: unknown): 
     throw new ApiError("Нет соединения с сервером", 0);
   }
   if (response.status === 401 && !path.startsWith("/auth/login")) onUnauthorized?.();
+  if (response.status === 409 && response.headers.get("X-Admin-User-Changed")) {
+    window.location.reload();
+    throw new ApiError("В этом браузере выполнен вход под другой учётной записью", 409);
+  }
   if (!response.ok) throw parseError(response.status, await response.json().catch(() => null));
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

@@ -38,6 +38,18 @@ async def login(data: LoginIn, request: Request, response: Response, db: DB) -> 
 
     if needs_rehash(user.password_hash):
         user.password_hash = hash_password(data.password)
+    csrf = await open_session(db, request, response, user)
+    await audit(db, request, user, "login", "user", user.id)
+    await db.commit()
+    await db.refresh(user)
+    return MeOut(user=UserOut.model_validate(user), csrf_token=csrf)
+
+
+async def open_session(db: DB, request: Request, response: Response, user: User) -> str:
+    """Новая сессия пользователя; прежняя сессия этого браузера (если была) завершается."""
+    previous = request.cookies.get(settings.session_cookie_name)
+    if previous:
+        await db.execute(delete(AdminSession).where(AdminSession.token_hash == hash_token(previous)))
     token, csrf = new_token(), new_token()
     ttl = timedelta(hours=settings.session_ttl_hours)
     db.add(
@@ -55,11 +67,8 @@ async def login(data: LoginIn, request: Request, response: Response, db: DB) -> 
     await db.execute(
         delete(AdminSession).where(AdminSession.user_id == user.id, AdminSession.expires_at < datetime.now(UTC))
     )
-    await audit(db, request, user, "login", "user", user.id)
-    await db.commit()
-    await db.refresh(user)
     _set_cookies(response, token, csrf, int(ttl.total_seconds()))
-    return MeOut(user=UserOut.model_validate(user), csrf_token=csrf)
+    return csrf
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

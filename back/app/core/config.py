@@ -55,7 +55,15 @@ class Settings(BaseSettings):
     smtp_starttls: bool = True
     notify_emails: Annotated[list[str], NoDecode] = Field(default_factory=list)
     telegram_bot_token: str = ""
+    # Общий чат/группа для короткого уведомления о заявке без персональных данных (необязательно)
     telegram_chat_id: str = ""
+    # Имя бота без @; если не задано — запрашивается у Telegram (getMe)
+    telegram_bot_username: str = ""
+    # Персональные уведомления о заявке с именем, телефоном, текстом и файлами.
+    # false — только номер, направление и количество файлов (см. 152-ФЗ, ст. 12)
+    telegram_lead_details: bool = True
+    # Часовой пояс дат в сообщениях бота
+    telegram_timezone: str = "Europe/Moscow"
 
     # Инвалидация кэша Next.js
     frontend_internal_url: str = "http://localhost:3000"

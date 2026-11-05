@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
-import { api, setUnauthorizedHandler } from "./api";
+import { api, broadcastAuthChange, onAuthChange, setExpectedUser, setUnauthorizedHandler } from "./api";
 import type { Me, User } from "./types";
 
 type AuthState = {
@@ -41,8 +41,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await api.post("/auth/logout").catch(() => undefined);
     setUser(null);
+    broadcastAuthChange();
     router.replace("/admin/login");
   }, [router]);
+
+  // Вкладка привязана к учётной записи, под которой она открыта
+  const userId = user?.id ?? null;
+  const userIdRef = useRef<number | null>(null);
+  useEffect(() => {
+    userIdRef.current = userId;
+    setExpectedUser(userId);
+  }, [userId]);
+
+  // В другой вкладке вошли/вышли или вкладка вернулась в фокус — сверяем учётную запись
+  useEffect(() => {
+    const check = () => {
+      if (userIdRef.current === null) return;
+      api
+        .get<Me>("/auth/me")
+        .then((me) => {
+          if (me.user.id !== userIdRef.current) window.location.reload();
+        })
+        .catch(() => undefined);
+    };
+    const onVisible = () => document.visibilityState === "visible" && check();
+    const stop = onAuthChange(check);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {

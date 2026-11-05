@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button, Field, Input } from "@/components/admin/ui";
-import { api } from "@/features/admin/api";
+import { api, broadcastAuthChange } from "@/features/admin/api";
 import { useAuth } from "@/features/admin/auth";
 import type { Me } from "@/features/admin/types";
 
@@ -22,7 +22,11 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, refresh } = useAuth();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchParams.get("telegram") === "failed"
+      ? "Не удалось войти через Telegram: ссылка устарела или Telegram не привязан к учётной записи."
+      : null,
+  );
   const next = searchParams.get("next");
   const target = next && next.startsWith("/admin") && !next.startsWith("//") ? next : "/admin";
 
@@ -40,6 +44,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await api.post<Me>("/auth/login", values);
+      broadcastAuthChange();
       await refresh();
       router.replace(target);
     } catch (e) {

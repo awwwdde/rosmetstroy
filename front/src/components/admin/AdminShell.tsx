@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, ChevronsLeft, ExternalLink, KeyRound, LogOut, Menu, Plus, Search, X } from "lucide-react";
+import { ChevronRight, ChevronsLeft, ExternalLink, LogOut, Menu, Plus, Search, Settings2, X } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { CREATE_ACTIONS, NAV_GROUPS, type NavItem, findNavItem } from "@/feature
 import type { LeadListItem, Paginated } from "@/features/admin/types";
 import { cn } from "@/lib/utils";
 
+import { Avatar } from "./Avatar";
 import { CommandPalette } from "./CommandPalette";
 import { Loading } from "./ui";
 
@@ -69,17 +70,6 @@ function useNewLeads(pathname: string) {
     };
   }, [pathname]);
   return count;
-}
-
-function initials(name: string) {
-  return (
-    name
-      .split(/[\s@.]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase())
-      .join("") || "?"
-  );
 }
 
 function NavLink({
@@ -168,7 +158,7 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
               <div className="truncate text-xs text-white/50">{user.email}</div>
             </div>
             {[
-              { href: "/admin/account", label: "Учётная запись", icon: KeyRound },
+              { href: "/admin/account", label: "Настройки учётной записи", icon: Settings2 },
               { href: "/", label: "Открыть сайт", icon: ExternalLink, external: true },
             ].map(({ href, label, icon: Icon, external }) => (
               <Link
@@ -202,9 +192,7 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
           collapsed && "justify-center",
         )}
       >
-        <span className="flex size-8 flex-none items-center justify-center rounded-full bg-[linear-gradient(135deg,#087cff,#3fa0ff)] text-xs font-semibold text-white">
-          {initials(name)}
-        </span>
+        <Avatar user={user} size={32} />
         {!collapsed ? (
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="truncate text-sm font-medium text-white">{name}</span>

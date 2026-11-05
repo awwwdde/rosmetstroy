@@ -3,7 +3,20 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy import text
 
 from app.api.deps import DB
-from app.api.v1 import admin, articles, auth, categories, faq, leads, media, pages, projects, services, settings
+from app.api.v1 import (
+    account,
+    admin,
+    articles,
+    auth,
+    categories,
+    faq,
+    leads,
+    media,
+    pages,
+    projects,
+    services,
+    settings,
+)
 from app.services.indexnow import indexnow_key
 
 api_router = APIRouter(prefix="/api/v1")
@@ -22,6 +35,7 @@ async def indexnow_key_file() -> str:
 
 
 api_router.include_router(auth.router)
+api_router.include_router(account.router)
 for module in (pages, services, projects, articles, categories, faq, leads, settings):
     api_router.include_router(module.router)
 

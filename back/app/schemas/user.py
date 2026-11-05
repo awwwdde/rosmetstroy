@@ -20,6 +20,28 @@ class UserOut(Schema):
     is_active: bool
     last_login_at: datetime | None
     created_at: datetime
+    avatar_url: str = ""
+    telegram_linked: bool = False
+    telegram_username: str = ""
+    telegram_linked_at: datetime | None = None
+
+
+class ProfileUpdate(Schema):
+    full_name: str = Field(max_length=255)
+
+
+class TelegramStatus(Schema):
+    # Бот настроен на сервере (TELEGRAM_BOT_TOKEN)
+    enabled: bool
+    bot_username: str
+    linked: bool
+    username: str
+    linked_at: datetime | None
+
+
+class TelegramLink(Schema):
+    url: str
+    expires_at: datetime
 
 
 class MeOut(Schema):

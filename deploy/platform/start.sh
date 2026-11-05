@@ -29,6 +29,15 @@ else
   export CORS_ORIGINS="${CORS_ORIGINS:-$SITE}"
   export REDIRECT_FROM_HOST="redirect.invalid"
 fi
+# www.<домен> → 301 на домен без www: иначе это ещё одно зеркало с той же главной
+WWW_HOST="${SITE#*://}"
+WWW_HOST="${WWW_HOST%%/*}"
+WWW_HOST="${WWW_HOST%%:*}"
+if [[ "$WWW_HOST" == *.* && "$WWW_HOST" != www.* ]]; then
+  export WWW_HOST="www.$WWW_HOST"
+else
+  export WWW_HOST="www.redirect.invalid"
+fi
 if [[ "$SITE" == https://* ]]; then
   export COOKIE_SECURE="${COOKIE_SECURE:-true}"
 else

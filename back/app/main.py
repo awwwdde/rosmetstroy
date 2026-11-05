@@ -15,6 +15,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.stored_file import StoredFile
+from app.services import telegram
 from app.services.retention import retention_loop
 
 logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
@@ -26,9 +27,14 @@ if settings.is_production and settings.secret_key.startswith("dev-"):
 @contextlib.asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # Ежедневное удаление заявок с истёкшим сроком хранения (в тестах не запускается)
-    task = None if settings.environment == "test" else asyncio.create_task(retention_loop())
+    tasks: list[asyncio.Task[None]] = []
+    if settings.environment != "test":
+        tasks.append(asyncio.create_task(retention_loop()))
+        # Telegram-бот: long polling изнутри backend, входящих адресов для бота нет
+        if telegram.enabled():
+            tasks.append(asyncio.create_task(telegram.bot_loop()))
     yield
-    if task:
+    for task in tasks:
         task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await task
@@ -48,7 +54,7 @@ app.add_middleware(
     allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "X-CSRF-Token"],
+    allow_headers=["Content-Type", "X-CSRF-Token", "X-Admin-User"],
 )
 
 
