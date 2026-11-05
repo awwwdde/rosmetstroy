@@ -31,6 +31,7 @@ x-backend-env: &backend-env
   TELEGRAM_LEAD_DETAILS: ${TELEGRAM_LEAD_DETAILS:-true}
   TELEGRAM_PROXY: ${TELEGRAM_PROXY:-}
   TELEGRAM_API_URL: ${TELEGRAM_API_URL:-https://api.telegram.org}
+  TELEGRAM_API_IP: ${TELEGRAM_API_IP:-}
 
 services:
   postgres:

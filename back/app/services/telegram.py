@@ -22,7 +22,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone, tzinfo
 from typing import Any
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode, urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
@@ -124,7 +124,17 @@ def _http() -> httpx.AsyncClient:
 async def call(method: str, **params: Any) -> Any:
     try:
         api = settings.telegram_api_url.rstrip("/")
-        resp = await _http().post(f"{api}/bot{settings.telegram_bot_token}/{method}", json=params)
+        headers: dict[str, str] = {}
+        extensions: dict[str, Any] = {}
+        host = urlsplit(api).hostname or ""
+        if settings.telegram_api_ip and not settings.telegram_proxy and host:
+            # Соединение — на заданный IP, а TLS (SNI и проверка сертификата) и Host — по имени сервера
+            api = api.replace(f"//{host}", f"//{settings.telegram_api_ip.strip()}", 1)
+            headers["Host"] = host
+            extensions["sni_hostname"] = host
+        resp = await _http().post(
+            f"{api}/bot{settings.telegram_bot_token}/{method}", json=params, headers=headers, extensions=extensions
+        )
         data = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {}
     except (httpx.HTTPError, ValueError) as exc:
         # Исключения httpx содержат адрес запроса (с токеном) — наружу и в логи уходит только тип ошибки
@@ -608,7 +618,12 @@ def _explain(exc: TelegramError) -> str:
         return "Telegram не принял токен: проверьте TELEGRAM_BOT_TOKEN"
     if exc.code == 0:
         where = "прокси" if settings.telegram_proxy else settings.telegram_api_url.split("://")[-1].split("/")[0]
-        hint = "" if settings.telegram_proxy else " Хостинг, похоже, блокирует Telegram: задайте TELEGRAM_PROXY."
+        hint = (
+            ""
+            if settings.telegram_proxy or settings.telegram_api_ip
+            else " Хостинг, похоже, блокирует адрес Telegram: задайте TELEGRAM_API_IP=149.154.167.220"
+            " или TELEGRAM_PROXY."
+        )
         return f"Нет связи с {where} ({exc.description}).{hint}"
     return str(exc)
 

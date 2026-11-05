@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     telegram_proxy: str = ""
     # …или свой адрес-посредник Bot API (например, Cloudflare Worker), без / в конце
     telegram_api_url: str = "https://api.telegram.org"
+    # Подключаться к Bot API по этому IP, если DNS отдаёт заблокированный у хостинга адрес
+    # (например, 149.154.167.220). Сертификат по-прежнему проверяется по имени api.telegram.org
+    telegram_api_ip: str = ""
 
     # Инвалидация кэша Next.js
     frontend_internal_url: str = "http://localhost:3000"
