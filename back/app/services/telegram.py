@@ -40,7 +40,6 @@ log = logging.getLogger(__name__)
 for _name in ("httpx", "httpcore"):
     logging.getLogger(_name).setLevel(logging.WARNING)
 
-API = "https://api.telegram.org"
 LINK_TTL = timedelta(minutes=15)
 LOGIN_MAX_AGE = 300  # секунд: подпись Telegram Login свежая — нажатие кнопки только что
 POLL_TIMEOUT = 50
@@ -112,13 +111,20 @@ _client: httpx.AsyncClient | None = None
 def _http() -> httpx.AsyncClient:
     global _client
     if _client is None or _client.is_closed:
-        _client = httpx.AsyncClient(timeout=httpx.Timeout(15, read=POLL_TIMEOUT + 15))
+        # IPv4: на части хостингов нет маршрута IPv6, и подключение к Telegram висит до таймаута
+        transport = httpx.AsyncHTTPTransport(
+            local_address="0.0.0.0",  # noqa: S104 — исходящий адрес, а не прослушивание
+            proxy=settings.telegram_proxy or None,
+            retries=2,
+        )
+        _client = httpx.AsyncClient(timeout=httpx.Timeout(15, read=POLL_TIMEOUT + 15), transport=transport)
     return _client
 
 
 async def call(method: str, **params: Any) -> Any:
     try:
-        resp = await _http().post(f"{API}/bot{settings.telegram_bot_token}/{method}", json=params)
+        api = settings.telegram_api_url.rstrip("/")
+        resp = await _http().post(f"{api}/bot{settings.telegram_bot_token}/{method}", json=params)
         data = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {}
     except (httpx.HTTPError, ValueError) as exc:
         # Исключения httpx содержат адрес запроса (с токеном) — наружу и в логи уходит только тип ошибки
@@ -601,7 +607,9 @@ def _explain(exc: TelegramError) -> str:
     if exc.code == 401:
         return "Telegram не принял токен: проверьте TELEGRAM_BOT_TOKEN"
     if exc.code == 0:
-        return f"Нет связи с api.telegram.org ({exc.description})"
+        where = "прокси" if settings.telegram_proxy else settings.telegram_api_url.split("://")[-1].split("/")[0]
+        hint = "" if settings.telegram_proxy else " Хостинг, похоже, блокирует Telegram: задайте TELEGRAM_PROXY."
+        return f"Нет связи с {where} ({exc.description}).{hint}"
     return str(exc)
 
 

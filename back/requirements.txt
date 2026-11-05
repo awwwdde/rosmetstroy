@@ -11,5 +11,5 @@ python-multipart>=0.0.18
 pillow>=11.0
 nh3>=0.2.19
 aiosmtplib>=3.0
-httpx>=0.28
+httpx[socks]>=0.28
 boto3>=1.35

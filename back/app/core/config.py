@@ -64,6 +64,11 @@ class Settings(BaseSettings):
     telegram_lead_details: bool = True
     # Часовой пояс дат в сообщениях бота
     telegram_timezone: str = "Europe/Moscow"
+    # Если сервер не может подключиться к api.telegram.org (хостинг блокирует Telegram):
+    # прокси для запросов бота — http://, https:// или socks5://[логин:пароль@]хост:порт
+    telegram_proxy: str = ""
+    # …или свой адрес-посредник Bot API (например, Cloudflare Worker), без / в конце
+    telegram_api_url: str = "https://api.telegram.org"
 
     # Инвалидация кэша Next.js
     frontend_internal_url: str = "http://localhost:3000"
